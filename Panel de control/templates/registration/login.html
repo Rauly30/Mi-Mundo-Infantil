@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Mi Mundo Infantil</title>
+    {% load static %}  <!-- Cargar la etiqueta static -->
+    <link rel="stylesheet" href="{% static 'css/login-styles.css' %}">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-form-container">
+                <div class="login-header">
+                    <div class="logo-wrapper">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo Mi Mundo Infantil" class="logo">
+                    </div>
+                    <h2>Iniciar Sesión</h2>
+                    <p>Bienvenido de nuevo, por favor ingresa tus datos</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Nombre de usuario:</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Recuérdame</label>
+                        </div>
+                        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <button type="submit" class="login-btn">Iniciar Sesión</button>
+                </form>
+
+        </div>
+    </div>
+    <script>
+        document.querySelector('.toggle-password').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    </script>
+</body>
+</html>

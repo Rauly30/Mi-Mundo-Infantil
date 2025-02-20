@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control del Director - Mi Mundo Infantil</title>
+    <!-- Cargar el archivo CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Cargar el archivo JS -->
+    <script src="{% static 'js/panel-director.js' %}"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="/placeholder.svg?height=50&width=50" alt="Logo Mi Mundo Infantil">
+                <h2>Mi Mundo Infantil</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-section="clases"><i class="fas fa-chalkboard"></i> Listado de Clases</li>
+                <li data-section="evaluaciones"><i class="fas fa-clipboard-check"></i> Evaluaciones</li>
+                <li data-section="eventos"><i class="fas fa-calendar-day"></i> Eventos</li>
+                <li data-section="profesores"><i class="fas fa-chalkboard-teacher"></i> Profesores</li>
+            </ul>
+            <div class="user-info">
+                <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del director">
+                <span id="userName">Nombre del Director</span>
+            </div>
+        </nav>
+        <main class="content">
+            <header>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="header-icons">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </header>
+            <div id="mainContent">
+                <!-- El contenido se cargará dinámicamente aquí -->
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

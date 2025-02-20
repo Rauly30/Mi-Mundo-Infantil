@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control del Profesor - Mi Mundo Infantil</title>
+    {% load static %}  <!-- Cargar la etiqueta static -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/panel-profesor.js' %}"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="/placeholder.svg?height=50&width=50" alt="Logo Mi Mundo Infantil">
+                <h2>Mi Mundo Infantil</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-section="horario"><i class="fas fa-calendar-alt"></i> Horario</li>
+                <li data-section="estudiantes"><i class="fas fa-user-graduate"></i> Estudiantes</li>
+                <li data-section="comentarios"><i class="fas fa-comments"></i> Comentarios</li>
+                <li data-section="evaluacion"><i class="fas fa-chart-bar"></i> Plan de Evaluación</li>
+            </ul>
+            <div class="user-info">
+                <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del profesor">
+                <span id="userName">Nombre del Profesor</span>
+            </div>
+        </nav>
+        <main class="content">
+            <header>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="header-icons">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </header>
+            <div id="mainContent">
+                <h1>Horario de Clases</h1>
+                <div class="card">
+                    <table>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                        </tr>
+                        <!-- Ejemplo de horario estático -->
+                        <tr>
+                            <td>8:00 - 9:00</td>
+                            <td>Matemáticas</td>
+                            <td>Lenguaje</td>
+                            <td>Ciencias</td>
+                            <td>Arte</td>
+                            <td>Educación Física</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control del Administrador - Mi Mundo Infantil</title>
+    {% load static %}  <!-- Cargar la etiqueta static -->
+    <!-- Cargar el archivo CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Cargar el archivo JS -->
+    <script src="{% static 'js/panel-administrador.js' %}"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="/placeholder.svg?height=50&width=50" alt="Logo Mi Mundo Infantil">
+                <h2>Mi Mundo Infantil</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-section="estudiantes"><i class="fas fa-user-graduate"></i> Gestión de Estudiantes</li>
+                <li data-section="aulas"><i class="fas fa-door-open"></i> Asignación de Aulas</li>
+                <li data-section="profesores"><i class="fas fa-chalkboard-teacher"></i> Gestión de Profesores</li>
+                <li data-section="accesos"><i class="fas fa-key"></i> Control de Accesos</li>
+            </ul>
+            <div class="user-info">
+                <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del administrador">
+                <span id="userName">Nombre del Administrador</span>
+            </div>
+        </nav>
+        <main class="content">
+            <header>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="header-icons">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </header>
+            <div id="mainContent">
+                <!-- El contenido se cargará dinámicamente aquí -->
+            </div>
+        </main>
+    </div>
+</body>
+</html>
