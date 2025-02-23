@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control del Director - Mi Mundo Infantil</title>
     <!-- Cargar el archivo CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- Cargar el archivo JS -->
     <script src="{% static 'js/panel-director.js' %}"></script>
 </head>
@@ -13,7 +14,7 @@
     <div class="dashboard">
         <nav class="sidebar">
             <div class="logo">
-                <img src="/placeholder.svg?height=50&width=50" alt="Logo Mi Mundo Infantil">
+                <img src="{% static 'img/logo.png' %}"style="height=100px&width=100px" alt="Logo Mi Mundo Infantil">
                 <h2>Mi Mundo Infantil</h2>
             </div>
             <ul class="nav-links">
