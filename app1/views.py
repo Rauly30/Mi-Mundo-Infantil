@@ -32,6 +32,26 @@ def administrador_login(request):
 
     return render(request, 'adimistrador_login.html')
 
+def director_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            director = Director.objects.get(email=email)
+
+            # Verificar la contraseña
+            if check_password(password, director.password):  # Comprobar si la contraseña es correcta
+                request.session['admin_id'] = director.id  # Guardar el ID del admin en la sesión
+                return redirect('panel_director')  # Redirigir al panel de control de usuarios
+            else:
+                messages.error(request, 'Usuario o contraseña incorrectos.')
+
+        except Administrador.DoesNotExist:
+            messages.error(request, 'Usuario o contraseña incorrectos .')
+
+    return render(request, 'director_login.html')
+
 def profesor_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -51,7 +71,6 @@ def profesor_login(request):
             messages.error(request, 'Usuario o contraseña incorrectos .')
 
     return render(request, 'profesor_login.html')
-
 
 #Vista de control de paneles
 def panel_administrador(request):
