@@ -27,8 +27,9 @@
             <ul class="nav-links">
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#programas">Programas</a></li>
-                <li><a href="#profesores">Zona de Profesores</a></li>
-                <li><a href="#Administrador">Zona de Administrador</a></li>
+                <li><a href="{% url 'administrador_login' %}">Zona de Administrador</a></li>
+                <li><a href="{% url 'director_login' %}">Zona de Director</a></li>
+                <li><a href="{% url 'profesor_login' %}">Zona de Profesor</a></li>
             </ul>
         </nav>
     </header>
