@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 import json
 from .models import Administrador, Profesor, Director, Estudiante, Aula, Clase, Evaluacion, Evento, Comentario
 from django.shortcuts import render, get_object_or_404, redirect
@@ -154,14 +154,15 @@ def panel_administrador(request):
                 nombre = request.POST.get('nombre')
                 email = request.POST.get('email')
                 password = request.POST.get('password')
-                Administrador.objects.create(nombre=nombre, email=email, password=password)
+                Administrador.objects.create(nombre=nombre, email=email, password=make_password(password))
             elif action == 'editar':
                 # Editar un administrador existente
                 administrador_id = request.POST.get('id')
                 administrador = get_object_or_404(Administrador, id=administrador_id)
                 administrador.nombre = request.POST.get('nombre')
                 administrador.email = request.POST.get('email')
-                administrador.password = request.POST.get('password')
+                administrador.password= request.POST.get('password')
+                administrador.password=make_password(password)
                 administrador.save()
             elif action == 'eliminar':
                 # Eliminar un administrador

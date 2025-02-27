@@ -325,3 +325,7 @@ th {
         width: 100%;
     }
 }
+
+.modal-backdrop {
+    display: none !important;
+}
