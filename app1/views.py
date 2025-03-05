@@ -182,160 +182,65 @@ def panel_administrador(request):
     }
     return render(request, 'panel-administrador.html', context)
 
+
+from django.shortcuts import render
+from .models import Profesor, Evento, Evaluacion, Clase, Comentario
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Profesor, Evento, Evaluacion, Clase, Comentario
+
 def panel_director(request):
-    return render(request, 'panel-director.html')
+    # Obtener todos los datos necesarios
+    profesores = Profesor.objects.all()
+    eventos = Evento.objects.all()
+    evaluaciones = Evaluacion.objects.all()
+    clases = Clase.objects.all()
+    comentarios = Comentario.objects.all()
+
+    # Manejar solicitudes POST
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "registrar_clase":
+            # Obtener los datos del formulario
+            grado = request.POST.get("grado")
+            profesor_id = request.POST.get("profesor")
+            numero_estudiantes = request.POST.get("numero_estudiantes")
+
+            # Validar y guardar la nueva clase
+            if grado and profesor_id and numero_estudiantes:
+                profesor = Profesor.objects.get(id=profesor_id)
+                nueva_clase = Clase(
+                    grado=grado,
+                    profesor=profesor,
+                    numero_estudiantes=numero_estudiantes
+                )
+                nueva_clase.save()
+                messages.success(request, "Clase registrada correctamente.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+            return redirect("panel_director")
+
+        elif action == "editar_clase":
+            # Código existente para editar una clase
+            pass
+
+    # Pasar los datos al template
+    context = {
+        'profesores': profesores,
+        'eventos': eventos,
+        'evaluaciones': evaluaciones,
+        'clases': clases,
+        'comentarios': comentarios,
+    }
+    return render(request, 'panel-director.html', context)
 
 def panel_profesor(request):
     return render(request, 'panel-profesor.html')
 
-# API Views
-@require_http_methods(["GET", "POST"])
-def estudiantes_api(request):
-    if request.method == "GET":
-        estudiantes = Estudiante.objects.all()
-        data = [{
-            'id': e.id,
-            'nombre': e.nombre,
-            'edad': e.edad,
-            'nivel': e.nivel,
-            'aula': e.aula.nombre if e.aula else None
-        } for e in estudiantes]
-        return JsonResponse(data, safe=False)
-    
-    elif request.method == "POST":
-        data = json.loads(request.body)
-        estudiante = Estudiante.objects.create(
-            nombre=data['nombre'],
-            edad=data['edad'],
-            nivel=data['nivel'],
-            aula_id=data['aula'] if data['aula'] else None
-        )
-        return JsonResponse({
-            'id': estudiante.id,
-            'nombre': estudiante.nombre,
-            'edad': estudiante.edad,
-            'nivel': estudiante.nivel,
-            'aula': estudiante.aula.nombre if estudiante.aula else None
-        }, status=201)
-
-@require_http_methods(["GET", "PUT", "DELETE"])
-def estudiante_detail_api(request, id):
-    estudiante = get_object_or_404(Estudiante, id=id)
-    
-    if request.method == "GET":
-        data = {
-            'id': estudiante.id,
-            'nombre': estudiante.nombre,
-            'edad': estudiante.edad,
-            'nivel': estudiante.nivel,
-            'aula': estudiante.aula.nombre if estudiante.aula else None
-        }
-        return JsonResponse(data)
-    
-    elif request.method == "PUT":
-        data = json.loads(request.body)
-        estudiante.nombre = data['nombre']
-        estudiante.edad = data['edad']
-        estudiante.nivel = data['nivel']
-        estudiante.aula_id = data['aula'] if data['aula'] else None
-        estudiante.save()
-        return JsonResponse({'status': 'success'})
-    
-    elif request.method == "DELETE":
-        estudiante.delete()
-        return JsonResponse({'status': 'success'})
-
-@require_http_methods(["GET"])
-def aulas_api(request):
-    aulas = Aula.objects.all()
-    data = [{
-        'id': a.id,
-        'nombre': a.nombre,
-        'nivel': a.nivel,
-        'capacidad': a.capacidad
-    } for a in aulas]
-    return JsonResponse(data, safe=False)
 
 def logout_view(request):
     request.session.flush()
     return redirect('index')
-
-# Vista para el listado de clases
-def clases_view(request):
-    clases = Clase.objects.all()
-    return render(request, 'clases.html', {'clases': clases})
-
-# Vista para el listado de evaluaciones
-def evaluaciones_view(request):
-    evaluaciones = Evaluacion.objects.all()
-    return render(request, 'evaluaciones.html', {'evaluaciones': evaluaciones})
-
-# Vista para el listado de eventos
-def eventos_view(request):
-    eventos = Evento.objects.all()
-    return render(request, 'eventos.html', {'eventos': eventos})
-
-# Vista para el listado de profesores
-def profesores_view(request):
-    profesores = Profesor.objects.all()
-    return render(request, 'profesores.html', {'profesores': profesores})
-
-# Vista para ver detalles de una clase
-def view_class_details(request, clase_id):
-    clase = Clase.objects.get(id=clase_id)
-    return render(request, 'class_details.html', {'clase': clase})
-
-# Vista para ver el plan de evaluación de una clase
-def view_evaluation_plan(request, evaluacion_id):
-    evaluacion = Evaluacion.objects.get(id=evaluacion_id)
-    return render(request, 'evaluation_plan.html', {'evaluacion': evaluacion})
-
-# Vista para añadir un comentario a una evaluación
-def add_comment_to_evaluation(request, evaluacion_id):
-    if request.method == 'POST':
-        texto = request.POST.get('texto')
-        evaluacion = Evaluacion.objects.get(id=evaluacion_id)
-        Comentario.objects.create(texto=texto, evaluacion=evaluacion)
-        return redirect('view_evaluation_plan', evaluacion_id=evaluacion_id)
-    return render(request, 'add_comment.html')
-
-# Vista para añadir un evento
-def add_event(request):
-    if request.method == 'POST':
-        fecha = request.POST.get('fecha')
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        Evento.objects.create(fecha=fecha, nombre=nombre, descripcion=descripcion)
-        return redirect('eventos')
-    return render(request, 'add_event.html')
-
-# Vista para editar un evento
-def edit_event(request, evento_id):
-    evento = Evento.objects.get(id=evento_id)
-    if request.method == 'POST':
-        evento.fecha = request.POST.get('fecha')
-        evento.nombre = request.POST.get('nombre')
-        evento.descripcion = request.POST.get('descripcion')
-        evento.save()
-        return redirect('eventos')
-    return render(request, 'edit_event.html', {'evento': evento})
-
-# Vista para eliminar un evento
-def delete_event(request, evento_id):
-    evento = Evento.objects.get(id=evento_id)
-    evento.delete()
-    return redirect('eventos')
-
-# Vista para ver detalles de un profesor
-def view_teacher_details(request, profesor_id):
-    profesor = Profesor.objects.get(id=profesor_id)
-    return render(request, 'teacher_details.html', {'profesor': profesor})
-
-# Vista para añadir un comentario a un profesor
-def add_comment_to_teacher(request, profesor_id):
-    if request.method == 'POST':
-        texto = request.POST.get('texto')
-        profesor = Profesor.objects.get(id=profesor_id)
-        Comentario.objects.create(texto=texto, profesor=profesor)
-        return redirect('view_teacher_details', profesor_id=profesor_id)
-    return render(request, 'add_comment.html')

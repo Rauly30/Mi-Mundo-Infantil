@@ -5,45 +5,185 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control del Director - Mi Mundo Infantil</title>
-    <!-- Cargar el archivo CSS -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{% static 'css/paneles-style.css' %}">
-    <!-- Cargar el archivo JS -->
-    <script src="{% static 'js/panel-director.js' %}"></script>
 </head>
 <body>
-    <div class="dashboard">
-        <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'img/logo.png' %}"style="height=100px&width=100px" alt="Logo Mi Mundo Infantil">
-                <h2>Mi Mundo Infantil</h2>
+    <div class="dashboard d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar bg-dark text-white p-3" style="width: 250px;">
+            <div class="logo d-flex align-items-center mb-4">
+                <img src="{% static 'img/logo.png' %}" alt="Logo Mi Mundo Infantil" style="height: 50px; width: 50px;">
+                <h2 class="h5 mb-0 ms-2">Mi Mundo Infantil</h2>
             </div>
-            <ul class="nav-links">
-                <li class="active" data-section="clases"><i class="fas fa-chalkboard"></i> Listado de Clases</li>
-                <li data-section="evaluaciones"><i class="fas fa-clipboard-check"></i> Evaluaciones</li>
-                <li data-section="eventos"><i class="fas fa-calendar-day"></i> Eventos</li>
-                <li data-section="profesores"><i class="fas fa-chalkboard-teacher"></i> Profesores</li>
+            <ul class="nav-links list-unstyled">
+                <li class="nav-item mb-2">
+                    <a href="#clases" class="nav-link text-white d-flex align-items-center">
+                        <i class="fas fa-chalkboard me-2"></i> Listado de Clases
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#evaluaciones" class="nav-link text-white d-flex align-items-center">
+                        <i class="fas fa-clipboard-check me-2"></i> Evaluaciones
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#eventos" class="nav-link text-white d-flex align-items-center">
+                        <i class="fas fa-calendar-day me-2"></i> Eventos
+                    </a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#profesores" class="nav-link text-white d-flex align-items-center">
+                        <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                    </a>
+                </li>
             </ul>
-            <div class="user-info">
-                <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del director">
-                <span id="userName">Nombre del Director</span>
+            <div class="user-info mt-auto">
+                <div class="d-flex align-items-center">
+                    <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del director" class="rounded-circle me-2">
+                    <span id="userName">Nombre del Director</span>
+                </div>
             </div>
         </nav>
-        <main class="content">
-            <header>
+
+        <!-- Contenido principal -->
+        <main class="content flex-grow-1 p-4">
+            <header class="d-flex justify-content-between align-items-center mb-4">
                 <div class="search-bar">
-                    <input type="text" placeholder="Buscar...">
-                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" placeholder="Buscar...">
                 </div>
                 <div class="header-icons">
-                    <i class="fas fa-bell"></i>
-                    <i class="fas fa-envelope"></i>
+                    <i class="fas fa-bell fs-5 me-3"></i>
+                    <i class="fas fa-envelope fs-5"></i>
                 </div>
             </header>
+
+            <!-- Contenido dinámico -->
             <div id="mainContent">
-                <!-- El contenido se cargará dinámicamente aquí -->
+                <!-- Sección de Clases -->
+                <div id="clases">
+                    <h2 class="mb-4">Listado de Clases</h2>
+                    <!-- Botón para abrir el modal de registro -->
+                    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#registrarClaseModal">
+                        <i class="fas fa-plus me-2"></i> Registrar Nueva Clase
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Grado</th>
+                                    <th>Profesor</th>
+                                    <th>Número de Estudiantes</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for clase in clases %}
+                                <tr>
+                                    <td>{{ clase.grado }}</td>
+                                    <td>{{ clase.profesor.nombre }}</td>
+                                    <td>{{ clase.numero_estudiantes }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editClaseModal{{ clase.id }}">
+                                            Editar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Clase -->
+                                <div class="modal" id="editClaseModal{{ clase.id }}" tabindex="-1" aria-labelledby="editClaseModalLabel{{ clase.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editClaseModalLabel{{ clase.id }}">Editar Clase</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_director' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar_clase">
+                                                    <input type="hidden" name="id" value="{{ clase.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editGrado{{ clase.id }}" class="form-label">Grado:</label>
+                                                        <input type="text" id="editGrado{{ clase.id }}" name="grado" class="form-control" value="{{ clase.grado }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editProfesor{{ clase.id }}" class="form-label">Profesor:</label>
+                                                        <select id="editProfesor{{ clase.id }}" name="profesor" class="form-select" required>
+                                                            {% for profesor in profesores %}
+                                                            <option value="{{ profesor.id }}" {% if profesor.id == clase.profesor.id %}selected{% endif %}>{{ profesor.nombre }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editNumeroEstudiantes{{ clase.id }}" class="form-label">Número de Estudiantes:</label>
+                                                        <input type="number" id="editNumeroEstudiantes{{ clase.id }}" name="numero_estudiantes" class="form-control" value="{{ clase.numero_estudiantes }}" required>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal para Registrar Nueva Clase -->
+                <div class="modal" id="registrarClaseModal" tabindex="-1" aria-labelledby="registrarClaseModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="registrarClaseModalLabel">Registrar Nueva Clase</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="{% url 'panel_director' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="registrar_clase">
+                                    <div class="mb-3">
+                                        <label for="grado" class="form-label">Grado:</label>
+                                        <input type="text" id="grado" name="grado" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="profesor" class="form-label">Profesor:</label>
+                                        <select id="profesor" name="profesor" class="form-select" required>
+                                            <option value="">Seleccione un profesor</option>
+                                            {% for profesor in profesores %}
+                                            <option value="{{ profesor.id }}">{{ profesor.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="numero_estudiantes" class="form-label">Número de Estudiantes:</label>
+                                        <input type="number" id="numero_estudiantes" name="numero_estudiantes" class="form-control" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" class="btn btn-primary">Registrar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resto del contenido dinámico (Evaluaciones, Eventos, Profesores) -->
             </div>
         </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script personalizado -->
+    <script src="{% static 'js/panel-director.js' %}"></script>
 </body>
 </html>
