@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configuración inicial
     loadSection('estudiantes');
     setupNavigation();
+    setupAlerts();
 });
 
 // Configuración de la navegación
@@ -30,4 +31,27 @@ function loadSection(sectionName) {
     if (activeSection) {
         activeSection.style.display = 'block';
     }
+}
+
+// Función para mostrar/ocultar formularios
+function toggleForm(formId) {
+    const form = document.getElementById(formId);
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+// Configuración de alertas
+function setupAlerts() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('fade-out');
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 3000);
+    });
 }

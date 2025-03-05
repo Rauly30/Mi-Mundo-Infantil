@@ -64,6 +64,18 @@ def profesor_login(request):
 
 # Vista de control de paneles
 def panel_administrador(request):
+    # Obtener el ID del administrador de la sesión
+    admin_id = request.session.get('admin_id')
+    if not admin_id:
+        return redirect('administrador_login')
+    
+    # Obtener el objeto Administrador
+    try:
+        administrador = Administrador.objects.get(id=admin_id)
+    except Administrador.DoesNotExist:
+        messages.error(request, 'Administrador no encontrado. Por favor, inicie sesión nuevamente.')
+        return redirect('administrador_login')
+    
     # Obtener todos los datos para mostrar en el template
     estudiantes = Estudiante.objects.all()
     aulas = Aula.objects.all()
@@ -84,6 +96,7 @@ def panel_administrador(request):
                 aula_id = request.POST.get('aula')
                 aula = Aula.objects.get(id=aula_id) if aula_id else None
                 Estudiante.objects.create(nombre=nombre, edad=edad, nivel=nivel, aula=aula)
+                messages.success(request, 'Estudiante agregado exitosamente.')
             elif action == 'editar':
                 # Editar un estudiante existente
                 estudiante_id = request.POST.get('id')
@@ -94,11 +107,13 @@ def panel_administrador(request):
                 aula_id = request.POST.get('aula')
                 estudiante.aula = Aula.objects.get(id=aula_id) if aula_id else None
                 estudiante.save()
+                messages.success(request, 'Estudiante editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un estudiante
                 estudiante_id = request.POST.get('id')
                 estudiante = get_object_or_404(Estudiante, id=estudiante_id)
                 estudiante.delete()
+                messages.success(request, 'Estudiante eliminado exitosamente.')
 
         elif model_type == 'aula':
             if action == 'crear':
@@ -109,6 +124,7 @@ def panel_administrador(request):
                 profesor_id = request.POST.get('profesor')
                 profesor = Profesor.objects.get(id=profesor_id) if profesor_id else None
                 Aula.objects.create(nombre=nombre, nivel=nivel, capacidad=capacidad, profesor=profesor)
+                messages.success(request, 'Aula agregada exitosamente.')
             elif action == 'editar':
                 # Editar un aula existente
                 aula_id = request.POST.get('id')
@@ -119,11 +135,13 @@ def panel_administrador(request):
                 profesor_id = request.POST.get('profesor')
                 aula.profesor = Profesor.objects.get(id=profesor_id) if profesor_id else None
                 aula.save()
+                messages.success(request, 'Aula editada exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un aula
                 aula_id = request.POST.get('id')
                 aula = get_object_or_404(Aula, id=aula_id)
                 aula.delete()
+                messages.success(request, 'Aula eliminada exitosamente.')
 
         elif model_type == 'profesor':
             if action == 'crear':
@@ -131,8 +149,9 @@ def panel_administrador(request):
                 nombre = request.POST.get('nombre')
                 especialidad = request.POST.get('especialidad')
                 email = request.POST.get('email')
-                password = request.POST.get('password')
+                password = make_password(request.POST.get('password'))
                 Profesor.objects.create(nombre=nombre, especialidad=especialidad, email=email, password=password)
+                messages.success(request, 'Profesor agregado exitosamente.')
             elif action == 'editar':
                 # Editar un profesor existente
                 profesor_id = request.POST.get('id')
@@ -140,41 +159,48 @@ def panel_administrador(request):
                 profesor.nombre = request.POST.get('nombre')
                 profesor.especialidad = request.POST.get('especialidad')
                 profesor.email = request.POST.get('email')
-                profesor.password = request.POST.get('password')
+                if request.POST.get('password'):
+                    profesor.password = make_password(request.POST.get('password'))
                 profesor.save()
+                messages.success(request, 'Profesor editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un profesor
                 profesor_id = request.POST.get('id')
                 profesor = get_object_or_404(Profesor, id=profesor_id)
                 profesor.delete()
+                messages.success(request, 'Profesor eliminado exitosamente.')
 
         elif model_type == 'administrador':
             if action == 'crear':
                 # Crear un nuevo administrador
                 nombre = request.POST.get('nombre')
                 email = request.POST.get('email')
-                password = request.POST.get('password')
-                Administrador.objects.create(nombre=nombre, email=email, password=make_password(password))
+                password = make_password(request.POST.get('password'))
+                Administrador.objects.create(nombre=nombre, email=email, password=password)
+                messages.success(request, 'Administrador agregado exitosamente.')
             elif action == 'editar':
                 # Editar un administrador existente
                 administrador_id = request.POST.get('id')
                 administrador = get_object_or_404(Administrador, id=administrador_id)
                 administrador.nombre = request.POST.get('nombre')
                 administrador.email = request.POST.get('email')
-                administrador.password= request.POST.get('password')
-                administrador.password=make_password(password)
+                if request.POST.get('password'):
+                    administrador.password = make_password(request.POST.get('password'))
                 administrador.save()
+                messages.success(request, 'Administrador editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un administrador
                 administrador_id = request.POST.get('id')
                 administrador = get_object_or_404(Administrador, id=administrador_id)
                 administrador.delete()
+                messages.success(request, 'Administrador eliminado exitosamente.')
 
         # Redirigir para evitar reenvíos del formulario
         return redirect('panel_administrador')
 
     # Renderizar el template con los datos
     context = {
+        'administrador': administrador,
         'estudiantes': estudiantes,
         'aulas': aulas,
         'profesores': profesores,
