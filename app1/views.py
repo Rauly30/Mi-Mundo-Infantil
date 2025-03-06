@@ -1,9 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
-import json
 from .models import Administrador, Profesor, Director, Estudiante, Aula, Clase, Evaluacion, Evento, Comentario
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -209,12 +207,13 @@ def panel_administrador(request):
     return render(request, 'panel-administrador.html', context)
 
 
-from django.shortcuts import render
-from .models import Profesor, Evento, Evaluacion, Clase, Comentario
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Profesor, Clase, Evaluacion, Evento, Comentario
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Profesor, Evento, Evaluacion, Clase, Comentario
+from .models import Profesor, Clase, Evaluacion, Evento, Comentario
 
 def panel_director(request):
     # Obtener todos los datos necesarios
@@ -228,13 +227,12 @@ def panel_director(request):
     if request.method == "POST":
         action = request.POST.get("action")
 
+        # Registrar una nueva clase
         if action == "registrar_clase":
-            # Obtener los datos del formulario
             grado = request.POST.get("grado")
             profesor_id = request.POST.get("profesor")
             numero_estudiantes = request.POST.get("numero_estudiantes")
 
-            # Validar y guardar la nueva clase
             if grado and profesor_id and numero_estudiantes:
                 profesor = Profesor.objects.get(id=profesor_id)
                 nueva_clase = Clase(
@@ -247,11 +245,187 @@ def panel_director(request):
             else:
                 messages.error(request, "Todos los campos son obligatorios.")
 
-            return redirect("panel_director")
-
+        # Editar una clase existente
         elif action == "editar_clase":
-            # Código existente para editar una clase
-            pass
+            clase_id = request.POST.get("id")
+            grado = request.POST.get("grado")
+            profesor_id = request.POST.get("profesor")
+            numero_estudiantes = request.POST.get("numero_estudiantes")
+
+            if clase_id and grado and profesor_id and numero_estudiantes:
+                try:
+                    clase = Clase.objects.get(id=clase_id)
+                    clase.grado = grado
+                    clase.profesor = Profesor.objects.get(id=profesor_id)
+                    clase.numero_estudiantes = numero_estudiantes
+                    clase.save()
+                    messages.success(request, "Clase actualizada correctamente.")
+                except Clase.DoesNotExist:
+                    messages.error(request, "La clase no existe.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Eliminar una clase
+        elif action == "eliminar_clase":
+            clase_id = request.POST.get("id")
+            if clase_id:
+                try:
+                    clase = Clase.objects.get(id=clase_id)
+                    clase.delete()
+                    messages.success(request, "Clase eliminada correctamente.")
+                except Clase.DoesNotExist:
+                    messages.error(request, "La clase no existe.")
+            else:
+                messages.error(request, "ID de clase no proporcionado.")
+
+        # Registrar una nueva evaluación
+        elif action == "registrar_evaluacion":
+            plan = request.POST.get("plan")
+            clase_id = request.POST.get("clase")
+
+            if plan and clase_id:
+                clase = Clase.objects.get(id=clase_id)
+                nueva_evaluacion = Evaluacion(
+                    plan=plan,
+                    clase=clase
+                )
+                nueva_evaluacion.save()
+                messages.success(request, "Evaluación registrada correctamente.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Editar una evaluación existente
+        elif action == "editar_evaluacion":
+            evaluacion_id = request.POST.get("id")
+            plan = request.POST.get("plan")
+            clase_id = request.POST.get("clase")
+
+            if evaluacion_id and plan and clase_id:
+                try:
+                    evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+                    evaluacion.plan = plan
+                    evaluacion.clase = Clase.objects.get(id=clase_id)
+                    evaluacion.save()
+                    messages.success(request, "Evaluación actualizada correctamente.")
+                except Evaluacion.DoesNotExist:
+                    messages.error(request, "La evaluación no existe.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Eliminar una evaluación
+        elif action == "eliminar_evaluacion":
+            evaluacion_id = request.POST.get("id")
+            if evaluacion_id:
+                try:
+                    evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+                    evaluacion.delete()
+                    messages.success(request, "Evaluación eliminada correctamente.")
+                except Evaluacion.DoesNotExist:
+                    messages.error(request, "La evaluación no existe.")
+            else:
+                messages.error(request, "ID de evaluación no proporcionado.")
+
+        # Registrar un nuevo evento
+        elif action == "registrar_evento":
+            nombre = request.POST.get("nombre")
+            fecha = request.POST.get("fecha")
+            descripcion = request.POST.get("descripcion")
+
+            if nombre and fecha and descripcion:
+                nuevo_evento = Evento(
+                    nombre=nombre,
+                    fecha=fecha,
+                    descripcion=descripcion
+                )
+                nuevo_evento.save()
+                messages.success(request, "Evento registrado correctamente.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Editar un evento existente
+        elif action == "editar_evento":
+            evento_id = request.POST.get("id")
+            nombre = request.POST.get("nombre")
+            fecha = request.POST.get("fecha")
+            descripcion = request.POST.get("descripcion")
+
+            if evento_id and nombre and fecha and descripcion:
+                try:
+                    evento = Evento.objects.get(id=evento_id)
+                    evento.nombre = nombre
+                    evento.fecha = fecha
+                    evento.descripcion = descripcion
+                    evento.save()
+                    messages.success(request, "Evento actualizado correctamente.")
+                except Evento.DoesNotExist:
+                    messages.error(request, "El evento no existe.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Eliminar un evento
+        elif action == "eliminar_evento":
+            evento_id = request.POST.get("id")
+            if evento_id:
+                try:
+                    evento = Evento.objects.get(id=evento_id)
+                    evento.delete()
+                    messages.success(request, "Evento eliminado correctamente.")
+                except Evento.DoesNotExist:
+                    messages.error(request, "El evento no existe.")
+            else:
+                messages.error(request, "ID de evento no proporcionado.")
+
+        # Registrar un nuevo profesor
+        elif action == "registrar_profesor":
+            nombre = request.POST.get("nombre")
+            email = request.POST.get("email")
+            telefono = request.POST.get("telefono")
+
+            if nombre and email and telefono:
+                nuevo_profesor = Profesor(
+                    nombre=nombre,
+                    email=email,
+                    telefono=telefono
+                )
+                nuevo_profesor.save()
+                messages.success(request, "Profesor registrado correctamente.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Editar un profesor existente
+        elif action == "editar_profesor":
+            profesor_id = request.POST.get("id")
+            nombre = request.POST.get("nombre")
+            email = request.POST.get("email")
+            telefono = request.POST.get("telefono")
+
+            if profesor_id and nombre and email and telefono:
+                try:
+                    profesor = Profesor.objects.get(id=profesor_id)
+                    profesor.nombre = nombre
+                    profesor.email = email
+                    profesor.telefono = telefono
+                    profesor.save()
+                    messages.success(request, "Profesor actualizado correctamente.")
+                except Profesor.DoesNotExist:
+                    messages.error(request, "El profesor no existe.")
+            else:
+                messages.error(request, "Todos los campos son obligatorios.")
+
+        # Eliminar un profesor
+        elif action == "eliminar_profesor":
+            profesor_id = request.POST.get("id")
+            if profesor_id:
+                try:
+                    profesor = Profesor.objects.get(id=profesor_id)
+                    profesor.delete()
+                    messages.success(request, "Profesor eliminado correctamente.")
+                except Profesor.DoesNotExist:
+                    messages.error(request, "El profesor no existe.")
+            else:
+                messages.error(request, "ID de profesor no proporcionado.")
+
+        return redirect("panel_director")
 
     # Pasar los datos al template
     context = {

@@ -67,7 +67,6 @@
                 <!-- Sección de Clases -->
                 <div id="clases">
                     <h2 class="mb-4">Listado de Clases</h2>
-                    <!-- Botón para abrir el modal de registro -->
                     <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#registrarClaseModal">
                         <i class="fas fa-plus me-2"></i> Registrar Nueva Clase
                     </button>
@@ -91,6 +90,14 @@
                                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editClaseModal{{ clase.id }}">
                                             Editar
                                         </button>
+                                        <form method="post" action="{% url 'panel_director' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar_clase">
+                                            <input type="hidden" name="id" value="{{ clase.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar esta clase?');">
+                                                Eliminar
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                                 <!-- Modal para Editar Clase -->
@@ -156,7 +163,6 @@
                                     <div class="mb-3">
                                         <label for="profesor" class="form-label">Profesor:</label>
                                         <select id="profesor" name="profesor" class="form-select" required>
-                                            <option value="">Seleccione un profesor</option>
                                             {% for profesor in profesores %}
                                             <option value="{{ profesor.id }}">{{ profesor.nombre }}</option>
                                             {% endfor %}
@@ -176,7 +182,222 @@
                     </div>
                 </div>
 
-                <!-- Resto del contenido dinámico (Evaluaciones, Eventos, Profesores) -->
+<!-- Sección de Evaluaciones -->
+<div id="evaluaciones" style="display: none;">
+    <h2 class="mb-4">Evaluaciones</h2>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#registrarEvaluacionModal">
+        <i class="fas fa-plus me-2"></i> Registrar Nueva Evaluación
+    </button>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Plan</th>
+                    <th>Clase</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for evaluacion in evaluaciones %}
+                <tr>
+                    <td>{{ evaluacion.plan }}</td>
+                    <td>{{ evaluacion.clase.grado }}</td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editEvaluacionModal{{ evaluacion.id }}">
+                            Editar
+                        </button>
+                        <form method="post" action="{% url 'panel_director' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="eliminar_evaluacion">
+                            <input type="hidden" name="id" value="{{ evaluacion.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar esta evaluación?');">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <!-- Modal para Editar Evaluación -->
+                <div class="modal" id="editEvaluacionModal{{ evaluacion.id }}" tabindex="-1" aria-labelledby="editEvaluacionModalLabel{{ evaluacion.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editEvaluacionModalLabel{{ evaluacion.id }}">Editar Evaluación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="{% url 'panel_director' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="editar_evaluacion">
+                                    <input type="hidden" name="id" value="{{ evaluacion.id }}">
+                                    <div class="mb-3">
+                                        <label for="editPlan{{ evaluacion.id }}" class="form-label">Plan:</label>
+                                        <textarea id="editPlan{{ evaluacion.id }}" name="plan" class="form-control" required>{{ evaluacion.plan }}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editClase{{ evaluacion.id }}" class="form-label">Clase:</label>
+                                        <select id="editClase{{ evaluacion.id }}" name="clase" class="form-select" required>
+                                            {% for clase in clases %}
+                                            <option value="{{ clase.id }}" {% if clase.id == evaluacion.clase.id %}selected{% endif %}>{{ clase.grado }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Registrar Nueva Evaluación -->
+<div class="modal" id="registrarEvaluacionModal" tabindex="-1" aria-labelledby="registrarEvaluacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrarEvaluacionModalLabel">Registrar Nueva Evaluación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'panel_director' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="registrar_evaluacion">
+                    <div class="mb-3">
+                        <label for="plan" class="form-label">Plan:</label>
+                        <textarea id="plan" name="plan" class="form-control" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clase" class="form-label">Clase:</label>
+                        <select id="clase" name="clase" class="form-select" required>
+                            {% for clase in clases %}
+                            <option value="{{ clase.id }}">{{ clase.grado }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                <!-- Sección de Profesores -->
+                <div id="profesores" style="display: none;">
+                    <h2 class="mb-4">Profesores</h2>
+                    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#registrarProfesorModal">
+                        <i class="fas fa-plus me-2"></i> Registrar Nuevo Profesor
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profesor in profesores %}
+                                <tr>
+                                    <td>{{ profesor.nombre }}</td>
+                                    <td>{{ profesor.email }}</td>
+                                    <td>{{ profesor.telefono }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProfesorModal{{ profesor.id }}">
+                                            Editar
+                                        </button>
+                                        <form method="post" action="{% url 'panel_director' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar_profesor">
+                                            <input type="hidden" name="id" value="{{ profesor.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este profesor?');">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Profesor -->
+                                <div class="modal" id="editProfesorModal{{ profesor.id }}" tabindex="-1" aria-labelledby="editProfesorModalLabel{{ profesor.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editProfesorModalLabel{{ profesor.id }}">Editar Profesor</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_director' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar_profesor">
+                                                    <input type="hidden" name="id" value="{{ profesor.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editNombre{{ profesor.id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" id="editNombre{{ profesor.id }}" name="nombre" class="form-control" value="{{ profesor.nombre }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editEmail{{ profesor.id }}" class="form-label">Email:</label>
+                                                        <input type="email" id="editEmail{{ profesor.id }}" name="email" class="form-control" value="{{ profesor.email }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editTelefono{{ profesor.id }}" class="form-label">Teléfono:</label>
+                                                        <input type="text" id="editTelefono{{ profesor.id }}" name="telefono" class="form-control" value="{{ profesor.telefono }}" required>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal para Registrar Nuevo Profesor -->
+                <div class="modal" id="registrarProfesorModal" tabindex="-1" aria-labelledby="registrarProfesorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="registrarProfesorModalLabel">Registrar Nuevo Profesor</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="{% url 'panel_director' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="registrar_profesor">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Nombre:</label>
+                                        <input type="text" id="nombre" name="nombre" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email:</label>
+                                        <input type="email" id="email" name="email" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="telefono" class="form-label">Teléfono:</label>
+                                        <input type="text" id="telefono" name="telefono" class="form-control" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" class="btn btn-primary">Registrar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
