@@ -289,6 +289,115 @@
         </div>
     </div>
 </div>
+<!-- Sección de Eventos -->
+<div id="eventos" style="display: none;">
+    <h2 class="mb-4">Eventos</h2>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#registrarEventoModal">
+        <i class="fas fa-plus me-2"></i> Registrar Nuevo Evento
+    </button>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for evento in eventos %}
+                <tr>
+                    <td>{{ evento.nombre }}</td>
+                    <td>{{ evento.fecha }}</td>
+                    <td>{{ evento.descripcion }}</td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editEventoModal{{ evento.id }}">
+                            Editar
+                        </button>
+                        <form method="post" action="{% url 'panel_director' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="eliminar_evento">
+                            <input type="hidden" name="id" value="{{ evento.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?');">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <!-- Modal para Editar Evento -->
+                <div class="modal" id="editEventoModal{{ evento.id }}" tabindex="-1" aria-labelledby="editEventoModalLabel{{ evento.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editEventoModalLabel{{ evento.id }}">Editar Evento</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="{% url 'panel_director' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="editar_evento">
+                                    <input type="hidden" name="id" value="{{ evento.id }}">
+                                    <div class="mb-3">
+                                        <label for="editNombre{{ evento.id }}" class="form-label">Nombre:</label>
+                                        <input type="text" id="editNombre{{ evento.id }}" name="nombre" class="form-control" value="{{ evento.nombre }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editFecha{{ evento.id }}" class="form-label">Fecha:</label>
+                                        <input type="date" id="editFecha{{ evento.id }}" name="fecha" class="form-control" value="{{ evento.fecha|date:'Y-m-d' }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editDescripcion{{ evento.id }}" class="form-label">Descripción:</label>
+                                        <textarea id="editDescripcion{{ evento.id }}" name="descripcion" class="form-control" required>{{ evento.descripcion }}</textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Registrar Nuevo Evento -->
+<div class="modal" id="registrarEventoModal" tabindex="-1" aria-labelledby="registrarEventoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrarEventoModalLabel">Registrar Nuevo Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'panel_director' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="registrar_evento">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción:</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
                 <!-- Sección de Profesores -->
                 <div id="profesores" style="display: none;">
                     <h2 class="mb-4">Profesores</h2>
