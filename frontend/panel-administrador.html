@@ -36,14 +36,14 @@
                         <i class="bi bi-person-badge me-2"></i> Gestionar Profesores
                     </a>
                 </li>
+                <li class="nav-item mb-2" data-section="directores">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-person-badge me-2"></i> Gestionar Directores
+                    </a>
+                </li>
                 <li class="nav-item mb-2" data-section="administradores">
                     <a href="#" class="nav-link text-white d-flex align-items-center">
                         <i class="bi bi-key me-2"></i> Control de Administradores
-                    </a>
-                </li>
-                <li class="nav-item mb-2" data-section="logout">
-                    <a href="{% url 'logout' %}" class="nav-link text-white d-flex align-items-center">
-                        <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
                     </a>
                 </li>
             </ul>
@@ -416,7 +416,101 @@
         </table>
     </div>
 </div>
+            <!-- Gestión de Directores -->
+            <div id="directores" style="display: none;">
+                <h2 class="mb-4">Gestión de Directores</h2>
+                <button class="btn btn-primary mb-4" onclick="toggleForm('directorForm')">Agregar Director</button>
+                <form id="directorForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="crear">
+                    <input type="hidden" name="model_type" value="director">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="password" class="form-label">Contraseña:</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">Agregar Director</button>
+                        </div>
+                    </div>
+                </form>
 
+                <h3 class="mb-3">Lista de Directores</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for director in directores %}
+                            <tr>
+                                <td>{{ director.nombre }}</td>
+                                <td>{{ director.email }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="eliminar">
+                                        <input type="hidden" name="model_type" value="director">
+                                        <input type="hidden" name="id" value="{{ director.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDirectorModal{{ director.id }}">
+                                        Editar
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Modal para Editar Director -->
+                            <div class="modal fade" id="editDirectorModal{{ director.id }}" tabindex="-1" aria-labelledby="editDirectorModalLabel{{ director.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editDirectorModalLabel{{ director.id }}">Editar Director</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action="{% url 'panel_administrador' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="editar">
+                                                <input type="hidden" name="model_type" value="director">
+                                                <input type="hidden" name="id" value="{{ director.id }}">
+                                                <div class="mb-3">
+                                                    <label for="editNombre{{ director.id }}" class="form-label">Nombre:</label>
+                                                    <input type="text" id="editNombre{{ director.id }}" name="nombre" class="form-control" value="{{ director.nombre }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editEmail{{ director.id }}" class="form-label">Email:</label>
+                                                    <input type="email" id="editEmail{{ director.id }}" name="email" class="form-control" value="{{ director.email }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editPassword{{ director.id }}" class="form-label">Contraseña:</label>
+                                                    <input type="password" id="editPassword{{ director.id }}" name="password" class="form-control" required>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
                 <!-- Control de Administradores -->
                 <div id="administradores" style="display: none;">
                     <h2 class="mb-4">Control de Administradores</h2>

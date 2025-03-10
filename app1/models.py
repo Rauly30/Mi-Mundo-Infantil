@@ -49,22 +49,16 @@ class Aula(models.Model):
     def __str__(self):
         return self.nombre
 
-# Modelo Clase
-class Clase(models.Model):
-    grado = models.CharField(max_length=50)
-    profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE, related_name='clases')
-    numero_estudiantes = models.IntegerField()
-
-    def __str__(self):
-        return f"{self.grado} - {self.profesor.nombre}"
+    def get_estudiantes(self):
+        return self.estudiantes.all()
 
 # Modelo Evaluacion
 class Evaluacion(models.Model):
-    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='evaluaciones')
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE, related_name='evaluaciones', default=1)
     plan = models.TextField()
 
     def __str__(self):
-        return f"Evaluación de {self.clase.grado}"
+        return f"Evaluación de {self.aula.nombre}"
 
 # Modelo Evento
 class Evento(models.Model):

@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("panel-director.js loaded");
     const navLinks = document.querySelectorAll(".nav-links .nav-item a");
     const sections = document.querySelectorAll("#mainContent > div");
 
