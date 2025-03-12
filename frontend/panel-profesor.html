@@ -4,65 +4,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control del Profesor - Mi Mundo Infantil</title>
-    {% load static %}  <!-- Cargar la etiqueta static -->
+    {% load static %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{% static 'css/paneles-style.css' %}">
-    <script src="{% static 'js/panel-profesor.js' %}"></script>
 </head>
 <body>
-    <div class="dashboard">
+    <div class="dashboard d-flex">
+        <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'img/logo.png' %}"style="height=100px&width=100px" alt="Logo Mi Mundo Infantil">
-                <h2>Mi Mundo Infantil</h2>
+            <div class="logo d">
+                <img src="{% static 'img/logo.png' %}" alt="Logo Mi Mundo Infantil">
+                <h2 class="h5 mb-0 ms-2">Mi Mundo Infantil</h2>
             </div>
-            <ul class="nav-links">
-                <li class="active" data-section="horario"><i class="fas fa-calendar-alt"></i> Horario</li>
-                <li data-section="estudiantes"><i class="fas fa-user-graduate"></i> Estudiantes</li>
-                <li data-section="comentarios"><i class="fas fa-comments"></i> Comentarios</li>
-                <li data-section="evaluacion"><i class="fas fa-chart-bar"></i> Plan de Evaluación</li>
+            <ul class="nav-links list-unstyled">
+                <li class="nav-item mb-2" data-section="estudiantes">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-people me-2"></i> Estudiantes
+                    </a>
+                </li>
+                <li class="nav-item mb-2" data-section="evaluaciones">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-clipboard-check me-2"></i> Evaluaciones
+                    </a>
+                </li>
+                <li class="nav-item mb-2" data-section="eventos">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-calendar-event me-2"></i> Eventos
+                    </a>
+                </li>
+                <li class="nav-item mb-2" data-section="comentarios-evaluaciones">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-chat-left-text me-2"></i> Comentarios de Evaluaciones
+                    </a>
+                </li>
+                <li class="nav-item mb-2" data-section="comentarios-estudiantes">
+                    <a href="#" class="nav-link text-white d-flex align-items-center">
+                        <i class="bi bi-chat-left-text me-2"></i> Comentarios de Estudiantes
+                    </a>
+                </li>
             </ul>
-            <div class="user-info">
-                <img src="/placeholder.svg?height=40&width=40" alt="Foto de perfil del profesor">
-                <span id="userName">Nombre del Profesor</span>
+            <div class="user-info mt-auto">
+                <div class="d-flex align-items-center">
+                    <span id="userName">{{ profesor.nombre }}</span>
+                </div>
             </div>
         </nav>
-        <main class="content">
-            <header>
-                <div class="search-bar">
-                    <input type="text" placeholder="Buscar...">
-                    <i class="fas fa-search"></i>
+
+        <!-- Contenido principal -->
+        <main class="content flex-grow-1 p-4">
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <div class="welcome-message mb-4">
+                    <h1>Bienvenido, {{ profesor.nombre }}!</h1>
                 </div>
                 <div class="header-icons">
-                    <i class="fas fa-bell"></i>
-                    <i class="fas fa-envelope"></i>
+                    <i class="bi bi-bell fs-5 me-3"></i>
+                    <i class="bi bi-envelope fs-5"></i>
                 </div>
             </header>
+            <!-- Mensajes de éxito -->
+            {% if messages %}
+            <div class="alert alert-success">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- Contenido dinámico -->
             <div id="mainContent">
-                <h1>Horario de Clases</h1>
-                <div class="card">
-                    <table>
-                        <tr>
-                            <th>Hora</th>
-                            <th>Lunes</th>
-                            <th>Martes</th>
-                            <th>Miércoles</th>
-                            <th>Jueves</th>
-                            <th>Viernes</th>
-                        </tr>
-                        <!-- Ejemplo de horario estático -->
-                        <tr>
-                            <td>8:00 - 9:00</td>
-                            <td>Matemáticas</td>
-                            <td>Lenguaje</td>
-                            <td>Ciencias</td>
-                            <td>Arte</td>
-                            <td>Educación Física</td>
-                        </tr>
-                    </table>
+                <!-- Sección de Estudiantes -->
+                <div id="estudiantes">
+                    <h2 class="mb-4">Estudiantes</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Edad</th>
+                                    <th>Nivel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estudiante in estudiantes %}
+                                <tr>
+                                    <td>{{ estudiante.nombre }}</td>
+                                    <td>{{ estudiante.edad }} años</td>
+                                    <td>{{ estudiante.nivel }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de Evaluaciones -->
+                <div id="evaluaciones" style="display: none;">
+                    <h2 class="mb-4">Evaluaciones</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Aula</th>
+                                    <th>Plan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for evaluacion in evaluaciones %}
+                                <tr>
+                                    <td>{{ evaluacion.aula.nombre }}</td>
+                                    <td>{{ evaluacion.plan }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de Eventos -->
+                <div id="eventos" style="display: none;">
+                    <h2 class="mb-4">Eventos</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for evento in eventos %}
+                                <tr>
+                                    <td>{{ evento.fecha }}</td>
+                                    <td>{{ evento.nombre }}</td>
+                                    <td>{{ evento.descripcion }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de Comentarios de Evaluaciones -->
+                <div id="comentarios-evaluaciones" style="display: none;">
+                    <h2 class="mb-4">Comentarios de Evaluaciones</h2>
+                    <form id="commentFormEvaluacion" method="post" action="{% url 'panel_profesor' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="agregar_comentario">
+                        <div class="mb-3">
+                            <label for="evaluationId" class="form-label">Evaluación:</label>
+                            <select id="evaluationId" name="evaluacion_id" class="form-select" required>
+                                {% for evaluacion in evaluaciones %}
+                                <option value="{{ evaluacion.id }}">{{ evaluacion.aula.nombre }} - {{ evaluacion.plan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="commentTextEvaluacion" class="form-label">Comentario:</label>
+                            <textarea id="commentTextEvaluacion" name="texto" class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Agregar Comentario</button>
+                    </form>
+                    <h3 class="mt-4">Comentarios Existentes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Evaluación</th>
+                                    <th>Comentario</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comentario in comentarios_evaluaciones %}
+                                <tr>
+                                    <td>{{ comentario.evaluacion.plan }}</td>
+                                    <td>{{ comentario.texto }}</td>
+                                    <td>{{ comentario.fecha }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editCommentModalEvaluacion{{ comentario.id }}">
+                                            Editar
+                                        </button>
+                                        <form method="post" action="{% url 'panel_profesor' %}" class="delete-comment-form" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar_comentario">
+                                            <input type="hidden" name="id" value="{{ comentario.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Comentario -->
+                                <div class="modal fade" id="editCommentModalEvaluacion{{ comentario.id }}" tabindex="-1" aria-labelledby="editCommentModalLabelEvaluacion{{ comentario.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editCommentModalLabelEvaluacion{{ comentario.id }}">Editar Comentario</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_profesor' %}" class="edit-comment-form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar_comentario">
+                                                    <input type="hidden" name="id" value="{{ comentario.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editCommentTextEvaluacion{{ comentario.id }}" class="form-label">Comentario:</label>
+                                                        <textarea id="editCommentTextEvaluacion{{ comentario.id }}" name="texto" class="form-control" required>{{ comentario.texto }}</textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de Comentarios de Estudiantes -->
+                <div id="comentarios-estudiantes" style="display: none;">
+                    <h2 class="mb-4">Comentarios de Estudiantes</h2>
+                    <form id="commentFormEstudiante" method="post" action="{% url 'panel_profesor' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="agregar_comentario">
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label">Estudiante:</label>
+                            <select id="studentId" name="estudiante_id" class="form-select" required>
+                                {% for estudiante in estudiantes %}
+                                <option value="{{ estudiante.id }}">{{ estudiante.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="commentTextEstudiante" class="form-label">Comentario:</label>
+                            <textarea id="commentTextEstudiante" name="texto" class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Agregar Comentario</button>
+                    </form>
+                    <h3 class="mt-4">Comentarios Existentes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Comentario</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comentario in comentarios_estudiantes %}
+                                <tr>
+                                    <td>{{ comentario.estudiante.nombre }}</td>
+                                    <td>{{ comentario.texto }}</td>
+                                    <td>{{ comentario.fecha }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editCommentModalEstudiante{{ comentario.id }}">
+                                            Editar
+                                        </button>
+                                        <form method="post" action="{% url 'panel_profesor' %}" class="delete-comment-form" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar_comentario">
+                                            <input type="hidden" name="id" value="{{ comentario.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Comentario -->
+                                <div class="modal fade" id="editCommentModalEstudiante{{ comentario.id }}" tabindex="-1" aria-labelledby="editCommentModalLabelEstudiante{{ comentario.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editCommentModalLabelEstudiante{{ comentario.id }}">Editar Comentario</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_profesor' %}" class="edit-comment-form">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar_comentario">
+                                                    <input type="hidden" name="id" value="{{ comentario.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editCommentTextEstudiante{{ comentario.id }}" class="form-label">Comentario:</label>
+                                                        <textarea id="editCommentTextEstudiante{{ comentario.id }}" name="texto" class="form-control" required>{{ comentario.texto }}</textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script personalizado -->
+    <script src="{% static 'js/panel-profesor.js' %}"></script>
 </body>
 </html>

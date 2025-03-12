@@ -52,7 +52,7 @@ def profesor_login(request):
         try:
             profesor = Profesor.objects.get(email=email)
             if check_password(password, profesor.password):
-                request.session['admin_id'] = profesor.id
+                request.session['profesor_id'] = profesor.id  # Correct session variable
                 return redirect('panel_profesor')
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
@@ -239,6 +239,9 @@ def panel_director(request):
     eventos = Evento.objects.all()
     profesores = Profesor.objects.all()
 
+    # Obtener todos los comentarios relacionados con evaluaciones
+    comentarios_evaluaciones = Comentario.objects.filter(evaluacion__isnull=False)
+
     if request.method == 'POST':
         action = request.POST.get('action')
 
@@ -309,19 +312,152 @@ def panel_director(request):
             profesor.delete()
             messages.success(request, 'Profesor eliminado exitosamente.')
 
+        elif action == 'registrar_aula':
+            nombre = request.POST.get('nombre')
+            nivel = request.POST.get('nivel')
+            capacidad = request.POST.get('capacidad')
+            profesor_id = request.POST.get('profesor')
+            profesor = Profesor.objects.get(id=profesor_id)
+            Aula.objects.create(nombre=nombre, nivel=nivel, capacidad=capacidad, profesor=profesor)
+            messages.success(request, 'Aula registrada exitosamente.')
+
+        elif action == 'editar_aula':
+            aula_id = request.POST.get('id')
+            aula = get_object_or_404(Aula, id=aula_id)
+            aula.nombre = request.POST.get('nombre')
+            aula.nivel = request.POST.get('nivel')
+            aula.capacidad = request.POST.get('capacidad')
+            profesor_id = request.POST.get('profesor')
+            aula.profesor = Profesor.objects.get(id=profesor_id)
+            aula.save()
+            messages.success(request, 'Aula editada exitosamente.')
+
+        elif action == 'eliminar_aula':
+            aula_id = request.POST.get('id')
+            aula = get_object_or_404(Aula, id=aula_id)
+            aula.delete()
+            messages.success(request, 'Aula eliminada exitosamente.')
+
+        # Acciones para comentarios
+        elif action == 'agregar_comentario':
+            texto = request.POST.get('texto')
+            evaluacion_id = request.POST.get('evaluacion_id')
+            profesor_id = request.POST.get('profesor_id')
+            evaluacion = get_object_or_404(Evaluacion, id=evaluacion_id)
+            profesor = get_object_or_404(Profesor, id=profesor_id)
+            Comentario.objects.create(texto=texto, evaluacion=evaluacion, profesor=profesor)
+            messages.success(request, 'Comentario agregado exitosamente.')
+
+        elif action == 'editar_comentario':
+            comentario_id = request.POST.get('id')
+            comentario = get_object_or_404(Comentario, id=comentario_id)
+            comentario.texto = request.POST.get('texto')
+            comentario.save()
+            messages.success(request, 'Comentario editado exitosamente.')
+
+        elif action == 'eliminar_comentario':
+            comentario_id = request.POST.get('id')
+            comentario = get_object_or_404(Comentario, id=comentario_id)
+            comentario.delete()
+            messages.success(request, 'Comentario eliminado exitosamente.')
+
         return redirect('panel_director')
+    
+     # Obtener todos los comentarios (tanto de evaluaciones como de estudiantes)
+    comentarios_evaluaciones = Comentario.objects.filter(evaluacion__isnull=False)  # Comentarios sobre evaluaciones
+    comentarios_estudiantes = Comentario.objects.filter(estudiante__isnull=False)    # Comentarios sobre estudiantes
+
+    # Combinar ambos tipos de comentarios en una sola lista
+    comentarios = list(comentarios_evaluaciones) + list(comentarios_estudiantes)
 
     context = {
         'aulas': aulas,
         'evaluaciones': evaluaciones,
         'eventos': eventos,
         'profesores': profesores,
+        'comentarios': comentarios,  # Pasamos todos los comentarios al contexto
     }
     return render(request, 'panel-director.html', context)
-
-
 def panel_profesor(request):
-    return render(request, 'panel-profesor.html')
+    # Obtener el ID del profesor de la sesión
+    profesor_id = request.session.get('profesor_id')
+    if not profesor_id:
+        return redirect('profesor_login')
+
+    # Obtener el objeto Profesor
+    try:
+        profesor = Profesor.objects.get(id=profesor_id)
+    except Profesor.DoesNotExist:
+        messages.error(request, 'Profesor no encontrado. Por favor, inicie sesión nuevamente.')
+        return redirect('profesor_login')
+
+    # Obtener los estudiantes del aula del profesor
+    aula = Aula.objects.filter(profesor=profesor).first()
+    estudiantes = Estudiante.objects.filter(aula=aula) if aula else []
+
+    # Obtener las evaluaciones del aula
+    evaluaciones = Evaluacion.objects.filter(aula=aula) if aula else []
+
+    # Obtener los eventos (notificaciones)
+    eventos = Evento.objects.all()
+
+    # Obtener los comentarios del profesor
+    comentarios_evaluaciones = Comentario.objects.filter(profesor=profesor, evaluacion__isnull=False)
+    comentarios_estudiantes = Comentario.objects.filter(profesor=profesor, estudiante__isnull=False)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'agregar_comentario':
+            texto = request.POST.get('texto')
+            evaluacion_id = request.POST.get('evaluacion_id', None)  # Puede ser None si no se envía
+            estudiante_id = request.POST.get('estudiante_id', None)  # Puede ser None si no se envía
+
+            if evaluacion_id:
+                # Si se envía evaluacion_id, es un comentario sobre una evaluación
+                try:
+                    evaluacion = Evaluacion.objects.get(id=evaluacion_id)
+                    Comentario.objects.create(texto=texto, evaluacion=evaluacion, profesor=profesor)
+                    messages.success(request, 'Comentario sobre evaluación agregado exitosamente.')
+                except Evaluacion.DoesNotExist:
+                    messages.error(request, 'Evaluación no encontrada.')
+            elif estudiante_id:
+                # Si se envía estudiante_id, es un comentario sobre un estudiante
+                try:
+                    estudiante = Estudiante.objects.get(id=estudiante_id)
+                    Comentario.objects.create(texto=texto, estudiante=estudiante, profesor=profesor)
+                    messages.success(request, 'Comentario sobre estudiante agregado exitosamente.')
+                except Estudiante.DoesNotExist:
+                    messages.error(request, 'Estudiante no encontrado.')
+            else:
+                messages.error(request, 'Debes seleccionar una evaluación o un estudiante.')
+
+            return redirect('panel_profesor')
+
+        elif action == 'editar_comentario':
+            comentario_id = request.POST.get('id')
+            comentario = get_object_or_404(Comentario, id=comentario_id)
+            comentario.texto = request.POST.get('texto')
+            comentario.save()
+            messages.success(request, 'Comentario editado exitosamente.')
+            return redirect('panel_profesor')
+
+        elif action == 'eliminar_comentario':
+            comentario_id = request.POST.get('id')
+            comentario = get_object_or_404(Comentario, id=comentario_id)
+            comentario.delete()
+            messages.success(request, 'Comentario eliminado exitosamente.')
+            return redirect('panel_profesor')
+
+    context = {
+        'profesor': profesor,
+        'estudiantes': estudiantes,
+        'evaluaciones': evaluaciones,
+        'eventos': eventos,
+        'comentarios_evaluaciones': comentarios_evaluaciones,
+        'comentarios_estudiantes': comentarios_estudiantes,
+    }
+    return render(request, 'panel-profesor.html', context)
 
 # API Views
 @require_http_methods(["GET"])
