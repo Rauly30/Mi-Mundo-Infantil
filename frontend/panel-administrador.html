@@ -75,442 +75,478 @@
             {% endif %}
             <!-- Contenido dinámico -->
             <div id="mainContent">
-<!-- Gestión de Estudiantes -->
-<div id="estudiantes">
-    <h2 class="mb-4">Gestión de Estudiantes</h2>
-    <button class="btn btn-primary mb-4" onclick="toggleForm('estudianteForm')">Agregar Estudiante</button>
-    <form id="estudianteForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="crear">
-        <input type="hidden" name="model_type" value="estudiante">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" class="form-control" required>
-            </div>
-            <div class="col-md-2">
-                <label for="edad" class="form-label">Edad:</label>
-                <input type="number" id="edad" name="edad" class="form-control" required>
-            </div>
-            <div class="col-md-3">
-                <label for="nivel" class="form-label">Nivel:</label>
-                <input type="text" id="nivel" name="nivel" class="form-control" required>
-            </div>
-            <div class="col-md-3">
-                <label for="aula" class="form-label">Aula:</label>
-                <select id="aula" name="aula" class="form-select" required>
-                    <option value="">Seleccione un aula</option>
-                    {% for aula in aulas %}
-                    <option value="{{ aula.id }}">{{ aula.nombre }} ({{ aula.nivel }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">Agregar Estudiante</button>
-            </div>
-        </div>
-    </form>
-
-    <h3 class="mb-3">Lista de Estudiantes</h3>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Edad</th>
-                    <th>Nivel</th>
-                    <th>Aula</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for estudiante in estudiantes %}
-                <tr>
-                    <td>{{ estudiante.nombre }}</td>
-                    <td>{{ estudiante.edad }} años</td>
-                    <td>{{ estudiante.nivel }}</td>
-                    <td>{{ estudiante.aula.nombre }}</td>
-                    <td>
-                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="eliminar">
-                            <input type="hidden" name="model_type" value="estudiante">
-                            <input type="hidden" name="id" value="{{ estudiante.id }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editEstudianteModal{{ estudiante.id }}">
-                            Editar
-                        </button>
-                    </td>
-                </tr>
-                <!-- Modal para Editar Estudiante (sin sombra) -->
-                <div class="modal" id="editEstudianteModal{{ estudiante.id }}" tabindex="-1" aria-labelledby="editEstudianteModalLabel{{ estudiante.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editEstudianteModalLabel{{ estudiante.id }}">Editar Estudiante</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <!-- Gestión de Estudiantes -->
+                <div id="estudiantes">
+                    <h2 class="mb-4">Gestión de Estudiantes</h2>
+                    <button class="btn btn-primary mb-4" onclick="toggleForm('estudianteForm')">Agregar Estudiante</button>
+                    <form id="estudianteForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="crear">
+                        <input type="hidden" name="model_type" value="estudiante">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required>
                             </div>
-                            <div class="modal-body">
-                                <form method="post" action="{% url 'panel_administrador' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="editar">
-                                    <input type="hidden" name="model_type" value="estudiante">
-                                    <input type="hidden" name="id" value="{{ estudiante.id }}">
-                                    <div class="mb-3">
-                                        <label for="editNombre{{ estudiante.id }}" class="form-label">Nombre:</label>
-                                        <input type="text" id="editNombre{{ estudiante.id }}" name="nombre" class="form-control" value="{{ estudiante.nombre }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editEdad{{ estudiante.id }}" class="form-label">Edad:</label>
-                                        <input type="number" id="editEdad{{ estudiante.id }}" name="edad" class="form-control" value="{{ estudiante.edad }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editNivel{{ estudiante.id }}" class="form-label">Nivel:</label>
-                                        <input type="text" id="editNivel{{ estudiante.id }}" name="nivel" class="form-control" value="{{ estudiante.nivel }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editAula{{ estudiante.id }}" class="form-label">Aula:</label>
-                                        <select id="editAula{{ estudiante.id }}" name="aula" class="form-select" required>
-                                            <option value="">Seleccione un aula</option>
-                                            {% for aula in aulas %}
-                                            <option value="{{ aula.id }}" {% if aula.id == estudiante.aula.id %}selected{% endif %}>{{ aula.nombre }} ({{ aula.nivel }})</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
-                                </form>
+                            <div class="col-md-2">
+                                <label for="edad" class="form-label">Edad:</label>
+                                <input type="number" id="edad" name="edad" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="nivel" class="form-label">Nivel:</label>
+                                <input type="text" id="nivel" name="nivel" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="aula" class="form-label">Aula:</label>
+                                <select id="aula" name="aula" class="form-select" required>
+                                    <option value="">Seleccione un aula</option>
+                                    {% for aula in aulas %}
+                                    <option value="{{ aula.id }}">{{ aula.nombre }} ({{ aula.nivel }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Agregar Estudiante</button>
                             </div>
                         </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                    </form>
 
-<!-- Gestión de Aulas -->
-<div id="aulas" style="display: none;">
-    <h2 class="mb-4">Gestión de Aulas</h2>
-    <button class="btn btn-primary mb-4" onclick="toggleForm('aulaForm')">Agregar Aula</button>
-    <form id="aulaForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="crear">
-        <input type="hidden" name="model_type" value="aula">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label for="nivel" class="form-label">Nivel:</label>
-                <input type="text" id="nivel" name="nivel" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label for="capacidad" class="form-label">Capacidad:</label>
-                <input type="number" id="capacidad" name="capacidad" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label for="profesor" class="form-label">Profesor:</label>
-                <select id="profesor" name="profesor" class="form-select" required>
-                    <option value="">Seleccione un profesor</option>
-                    {% for profesor in profesores %}
-                    <option value="{{ profesor.id }}">{{ profesor.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">Agregar Aula</button>
-            </div>
-        </div>
-    </form>
-
-    <h3 class="mb-3">Lista de Aulas</h3>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Nivel</th>
-                    <th>Capacidad</th>
-                    <th>Profesor</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for aula in aulas %}
-                <tr>
-                    <td>{{ aula.nombre }}</td>
-                    <td>{{ aula.nivel }}</td>
-                    <td>{{ aula.capacidad }}</td>
-                    <td>{{ aula.profesor.nombre }}</td>
-                    <td>
-                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="eliminar">
-                            <input type="hidden" name="model_type" value="aula">
-                            <input type="hidden" name="id" value="{{ aula.id }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAulaModal{{ aula.id }}">
-                            Editar
-                        </button>
-                    </td>
-                </tr>
-                <!-- Modal para Editar Aula (sin sombra) -->
-                <div class="modal" id="editAulaModal{{ aula.id }}" tabindex="-1" aria-labelledby="editAulaModalLabel{{ aula.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editAulaModalLabel{{ aula.id }}">Editar Aula</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="post" action="{% url 'panel_administrador' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="editar">
-                                    <input type="hidden" name="model_type" value="aula">
-                                    <input type="hidden" name="id" value="{{ aula.id }}">
-                                    <div class="mb-3">
-                                        <label for="editNombre{{ aula.id }}" class="form-label">Nombre:</label>
-                                        <input type="text" id="editNombre{{ aula.id }}" name="nombre" class="form-control" value="{{ aula.nombre }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editNivel{{ aula.id }}" class="form-label">Nivel:</label>
-                                        <input type="text" id="editNivel{{ aula.id }}" name="nivel" class="form-control" value="{{ aula.nivel }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editCapacidad{{ aula.id }}" class="form-label">Capacidad:</label>
-                                        <input type="number" id="editCapacidad{{ aula.id }}" name="capacidad" class="form-control" value="{{ aula.capacidad }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editProfesor{{ aula.id }}" class="form-label">Profesor:</label>
-                                        <select id="editProfesor{{ aula.id }}" name="profesor" class="form-select" required>
-                                            <option value="">Seleccione un profesor</option>
-                                            {% for profesor in profesores %}
-                                            <option value="{{ profesor.id }}" {% if profesor.id == aula.profesor.id %}selected{% endif %}>{{ profesor.nombre }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Gestión de Profesores -->
-<div id="profesores" style="display: none;">
-    <h2 class="mb-4">Gestión de Profesores</h2>
-    <button class="btn btn-primary mb-4" onclick="toggleForm('profesorForm')">Agregar Profesor</button>
-    <form id="profesorForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="crear">
-        <input type="hidden" name="model_type" value="profesor">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label for="especialidad" class="form-label">Especialidad:</label>
-                <input type="text" id="especialidad" name="especialidad" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-                <label for="password" class="form-label">Contraseña:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">Agregar Profesor</button>
-            </div>
-        </div>
-    </form>
-
-    <h3 class="mb-3">Lista de Profesores</h3>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Especialidad</th>
-                    <th>Email</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for profesor in profesores %}
-                <tr>
-                    <td>{{ profesor.nombre }}</td>
-                    <td>{{ profesor.especialidad }}</td>
-                    <td>{{ profesor.email }}</td>
-                    <td>
-                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="eliminar">
-                            <input type="hidden" name="model_type" value="profesor">
-                            <input type="hidden" name="id" value="{{ profesor.id }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProfesorModal{{ profesor.id }}">
-                            Editar
-                        </button>
-                    </td>
-                </tr>
-                <!-- Modal para Editar Profesor (sin sombra) -->
-                <div class="modal" id="editProfesorModal{{ profesor.id }}" tabindex="-1" aria-labelledby="editProfesorModalLabel{{ profesor.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editProfesorModalLabel{{ profesor.id }}">Editar Profesor</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="post" action="{% url 'panel_administrador' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="editar">
-                                    <input type="hidden" name="model_type" value="profesor">
-                                    <input type="hidden" name="id" value="{{ profesor.id }}">
-                                    <div class="mb-3">
-                                        <label for="editNombre{{ profesor.id }}" class="form-label">Nombre:</label>
-                                        <input type="text" id="editNombre{{ profesor.id }}" name="nombre" class="form-control" value="{{ profesor.nombre }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editEspecialidad{{ profesor.id }}" class="form-label">Especialidad:</label>
-                                        <input type="text" id="editEspecialidad{{ profesor.id }}" name="especialidad" class="form-control" value="{{ profesor.especialidad }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editEmail{{ profesor.id }}" class="form-label">Email:</label>
-                                        <input type="email" id="editEmail{{ profesor.id }}" name="email" class="form-control" value="{{ profesor.email }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editPassword{{ profesor.id }}" class="form-label">Contraseña:</label>
-                                        <input type="password" id="editPassword{{ profesor.id }}" name="password" class="form-control" required>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-            <!-- Gestión de Directores -->
-            <div id="directores" style="display: none;">
-                <h2 class="mb-4">Gestión de Directores</h2>
-                <button class="btn btn-primary mb-4" onclick="toggleForm('directorForm')">Agregar Director</button>
-                <form id="directorForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="crear">
-                    <input type="hidden" name="model_type" value="director">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="nombre" class="form-label">Nombre:</label>
-                            <input type="text" id="nombre" name="nombre" class="form-control" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="email" class="form-label">Email:</label>
-                            <input type="email" id="email" name="email" class="form-control" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="password" class="form-label">Contraseña:</label>
-                            <input type="password" id="password" name="password" class="form-control" required>
-                        </div>
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Agregar Director</button>
-                        </div>
-                    </div>
-                </form>
-
-                <h3 class="mb-3">Lista de Directores</h3>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for director in directores %}
-                            <tr>
-                                <td>{{ director.nombre }}</td>
-                                <td>{{ director.email }}</td>
-                                <td>
-                                    <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="eliminar">
-                                        <input type="hidden" name="model_type" value="director">
-                                        <input type="hidden" name="id" value="{{ director.id }}">
-                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                                    </form>
-                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDirectorModal{{ director.id }}">
-                                        Editar
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Modal para Editar Director -->
-                            <div class="modal fade" id="editDirectorModal{{ director.id }}" tabindex="-1" aria-labelledby="editDirectorModalLabel{{ director.id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editDirectorModalLabel{{ director.id }}">Editar Director</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="{% url 'panel_administrador' %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="editar">
-                                                <input type="hidden" name="model_type" value="director">
-                                                <input type="hidden" name="id" value="{{ director.id }}">
-                                                <div class="mb-3">
-                                                    <label for="editNombre{{ director.id }}" class="form-label">Nombre:</label>
-                                                    <input type="text" id="editNombre{{ director.id }}" name="nombre" class="form-control" value="{{ director.nombre }}" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editEmail{{ director.id }}" class="form-label">Email:</label>
-                                                    <input type="email" id="editEmail{{ director.id }}" name="email" class="form-control" value="{{ director.email }}" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="editPassword{{ director.id }}" class="form-label">Contraseña:</label>
-                                                    <input type="password" id="editPassword{{ director.id }}" name="password" class="form-control" required>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                                </div>
-                                            </form>
+                    <h3 class="mb-3">Lista de Estudiantes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Edad</th>
+                                    <th>Nivel</th>
+                                    <th>Aula</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estudiante in estudiantes %}
+                                <tr>
+                                    <td>{{ estudiante.nombre }}</td>
+                                    <td>{{ estudiante.edad }} años</td>
+                                    <td>{{ estudiante.nivel }}</td>
+                                    <td>{{ estudiante.aula.nombre }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar">
+                                            <input type="hidden" name="model_type" value="estudiante">
+                                            <input type="hidden" name="id" value="{{ estudiante.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editEstudianteModal{{ estudiante.id }}">
+                                            Editar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Estudiante -->
+                                <div class="modal" id="editEstudianteModal{{ estudiante.id }}" tabindex="-1" aria-labelledby="editEstudianteModalLabel{{ estudiante.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editEstudianteModalLabel{{ estudiante.id }}">Editar Estudiante</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_administrador' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar">
+                                                    <input type="hidden" name="model_type" value="estudiante">
+                                                    <input type="hidden" name="id" value="{{ estudiante.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editNombre{{ estudiante.id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" id="editNombre{{ estudiante.id }}" name="nombre" class="form-control" value="{{ estudiante.nombre }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editEdad{{ estudiante.id }}" class="form-label">Edad:</label>
+                                                        <input type="number" id="editEdad{{ estudiante.id }}" name="edad" class="form-control" value="{{ estudiante.edad }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editNivel{{ estudiante.id }}" class="form-label">Nivel:</label>
+                                                        <input type="text" id="editNivel{{ estudiante.id }}" name="nivel" class="form-control" value="{{ estudiante.nivel }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editAula{{ estudiante.id }}" class="form-label">Aula:</label>
+                                                        <select id="editAula{{ estudiante.id }}" name="aula" class="form-select" required>
+                                                            <option value="">Seleccione un aula</option>
+                                                            {% for aula in aulas %}
+                                                            <option value="{{ aula.id }}" {% if aula.id == estudiante.aula.id %}selected{% endif %}>{{ aula.nombre }} ({{ aula.nivel }})</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Gestión de Aulas -->
+                <div id="aulas" style="display: none;">
+                    <h2 class="mb-4">Gestión de Aulas</h2>
+                    <button class="btn btn-primary mb-4" onclick="toggleForm('aulaForm')">Agregar Aula</button>
+                    <form id="aulaForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="crear">
+                        <input type="hidden" name="model_type" value="aula">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="nivel" class="form-label">Nivel:</label>
+                                <input type="text" id="nivel" name="nivel" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="capacidad" class="form-label">Capacidad:</label>
+                                <input type="number" id="capacidad" name="capacidad" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="profesor" class="form-label">Profesor:</label>
+                                <select id="profesor" name="profesor" class="form-select" required>
+                                    <option value="">Seleccione un profesor</option>
+                                    {% for profesor in profesores %}
+                                    <option value="{{ profesor.id }}">{{ profesor.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Agregar Aula</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <h3 class="mb-3">Lista de Aulas</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Nivel</th>
+                                    <th>Capacidad</th>
+                                    <th>Profesor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for aula in aulas %}
+                                <tr>
+                                    <td>{{ aula.nombre }}</td>
+                                    <td>{{ aula.nivel }}</td>
+                                    <td>{{ aula.capacidad }}</td>
+                                    <td>{{ aula.profesor.nombre }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar">
+                                            <input type="hidden" name="model_type" value="aula">
+                                            <input type="hidden" name="id" value="{{ aula.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAulaModal{{ aula.id }}">
+                                            Editar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Aula -->
+                                <div class="modal" id="editAulaModal{{ aula.id }}" tabindex="-1" aria-labelledby="editAulaModalLabel{{ aula.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editAulaModalLabel{{ aula.id }}">Editar Aula</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_administrador' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar">
+                                                    <input type="hidden" name="model_type" value="aula">
+                                                    <input type="hidden" name="id" value="{{ aula.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editNombre{{ aula.id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" id="editNombre{{ aula.id }}" name="nombre" class="form-control" value="{{ aula.nombre }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editNivel{{ aula.id }}" class="form-label">Nivel:</label>
+                                                        <input type="text" id="editNivel{{ aula.id }}" name="nivel" class="form-control" value="{{ aula.nivel }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editCapacidad{{ aula.id }}" class="form-label">Capacidad:</label>
+                                                        <input type="number" id="editCapacidad{{ aula.id }}" name="capacidad" class="form-control" value="{{ aula.capacidad }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editProfesor{{ aula.id }}" class="form-label">Profesor:</label>
+                                                        <select id="editProfesor{{ aula.id }}" name="profesor" class="form-select" required>
+                                                            <option value="">Seleccione un profesor</option>
+                                                            {% for profesor in profesores %}
+                                                            <option value="{{ profesor.id }}" {% if profesor.id == aula.profesor.id %}selected{% endif %}>{{ profesor.nombre }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Gestión de Profesores -->
+                <div id="profesores" style="display: none;">
+                    <h2 class="mb-4">Gestión de Profesores</h2>
+                    <button class="btn btn-primary mb-4" onclick="toggleForm('profesorForm')">Agregar Profesor</button>
+                    <form id="profesorForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="crear">
+                        <input type="hidden" name="model_type" value="profesor">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="especialidad" class="form-label">Especialidad:</label>
+                                <input type="text" id="especialidad" name="especialidad" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="email" class="form-label">Email:</label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="password" class="form-label">Contraseña:</label>
+                                <input type="password" id="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Agregar Profesor</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <h3 class="mb-3">Lista de Profesores</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Especialidad</th>
+                                    <th>Email</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profesor in profesores %}
+                                <tr>
+                                    <td>{{ profesor.nombre }}</td>
+                                    <td>{{ profesor.especialidad }}</td>
+                                    <td>{{ profesor.email }}</td>
+                                    <td>
+                                        {% if profesor.bloqueado %}
+                                            <span class="text-danger">❌ Bloqueado</span>
+                                        {% else %}
+                                            <span class="text-success">✔️ Activo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="{% if profesor.bloqueado %}desbloquear{% else %}bloquear{% endif %}">
+                                            <input type="hidden" name="model_type" value="profesor">
+                                            <input type="hidden" name="id" value="{{ profesor.id }}">
+                                            <button type="submit" class="btn btn-{% if profesor.bloqueado %}success{% else %}danger{% endif %} btn-sm">
+                                                {% if profesor.bloqueado %}Desbloquear{% else %}Bloquear{% endif %}
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProfesorModal{{ profesor.id }}">
+                                            Editar
+                                        </button>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar">
+                                            <input type="hidden" name="model_type" value="profesor">
+                                            <input type="hidden" name="id" value="{{ profesor.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Profesor -->
+                                <div class="modal" id="editProfesorModal{{ profesor.id }}" tabindex="-1" aria-labelledby="editProfesorModalLabel{{ profesor.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editProfesorModalLabel{{ profesor.id }}">Editar Profesor</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_administrador' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar">
+                                                    <input type="hidden" name="model_type" value="profesor">
+                                                    <input type="hidden" name="id" value="{{ profesor.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editNombre{{ profesor.id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" id="editNombre{{ profesor.id }}" name="nombre" class="form-control" value="{{ profesor.nombre }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editEspecialidad{{ profesor.id }}" class="form-label">Especialidad:</label>
+                                                        <input type="text" id="editEspecialidad{{ profesor.id }}" name="especialidad" class="form-control" value="{{ profesor.especialidad }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editEmail{{ profesor.id }}" class="form-label">Email:</label>
+                                                        <input type="email" id="editEmail{{ profesor.id }}" name="email" class="form-control" value="{{ profesor.email }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editPassword{{ profesor.id }}" class="form-label">Contraseña:</label>
+                                                        <input type="password" id="editPassword{{ profesor.id }}" name="password" class="form-control" required>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Gestión de Directores -->
+                <div id="directores" style="display: none;">
+                    <h2 class="mb-4">Gestión de Directores</h2>
+                    <button class="btn btn-primary mb-4" onclick="toggleForm('directorForm')">Agregar Director</button>
+                    <form id="directorForm" method="post" action="{% url 'panel_administrador' %}" class="mb-4 card p-4" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="crear">
+                        <input type="hidden" name="model_type" value="director">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="email" class="form-label">Email:</label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="password" class="form-label">Contraseña:</label>
+                                <input type="password" id="password" name="password" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Agregar Director</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <h3 class="mb-3">Lista de Directores</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for director in directores %}
+                                <tr>
+                                    <td>{{ director.nombre }}</td>
+                                    <td>{{ director.email }}</td>
+                                    <td>
+                                        {% if director.bloqueado %}
+                                            <span class="text-danger">❌ Bloqueado</span>
+                                        {% else %}
+                                            <span class="text-success">✔️ Activo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="{% if director.bloqueado %}desbloquear{% else %}bloquear{% endif %}">
+                                            <input type="hidden" name="model_type" value="director">
+                                            <input type="hidden" name="id" value="{{ director.id }}">
+                                            <button type="submit" class="btn btn-{% if director.bloqueado %}success{% else %}danger{% endif %} btn-sm">
+                                                {% if director.bloqueado %}Desbloquear{% else %}Bloquear{% endif %}
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDirectorModal{{ director.id }}">
+                                            Editar
+                                        </button>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="eliminar">
+                                            <input type="hidden" name="model_type" value="director">
+                                            <input type="hidden" name="id" value="{{ director.id }}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <!-- Modal para Editar Director -->
+                                <div class="modal" id="editDirectorModal{{ director.id }}" tabindex="-1" aria-labelledby="editDirectorModalLabel{{ director.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editDirectorModalLabel{{ director.id }}">Editar Director</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'panel_administrador' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="editar">
+                                                    <input type="hidden" name="model_type" value="director">
+                                                    <input type="hidden" name="id" value="{{ director.id }}">
+                                                    <div class="mb-3">
+                                                        <label for="editNombre{{ director.id }}" class="form-label">Nombre:</label>
+                                                        <input type="text" id="editNombre{{ director.id }}" name="nombre" class="form-control" value="{{ director.nombre }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editEmail{{ director.id }}" class="form-label">Email:</label>
+                                                        <input type="email" id="editEmail{{ director.id }}" name="email" class="form-control" value="{{ director.email }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="editPassword{{ director.id }}" class="form-label">Contraseña:</label>
+                                                        <input type="password" id="editPassword{{ director.id }}" name="password" class="form-control" required>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Control de Administradores -->
                 <div id="administradores" style="display: none;">
                     <h2 class="mb-4">Control de Administradores</h2>
@@ -545,6 +581,7 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Email</th>
+                                    <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -554,6 +591,25 @@
                                     <td>{{ administrador.nombre }}</td>
                                     <td>{{ administrador.email }}</td>
                                     <td>
+                                        {% if administrador.bloqueado %}
+                                            <span class="text-danger">❌ Bloqueado</span>
+                                        {% else %}
+                                            <span class="text-success">✔️ Activo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="{% if administrador.bloqueado %}desbloquear{% else %}bloquear{% endif %}">
+                                            <input type="hidden" name="model_type" value="administrador">
+                                            <input type="hidden" name="id" value="{{ administrador.id }}">
+                                            <button type="submit" class="btn btn-{% if administrador.bloqueado %}success{% else %}danger{% endif %} btn-sm">
+                                                {% if administrador.bloqueado %}Desbloquear{% else %}Bloquear{% endif %}
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdministradorModal{{ administrador.id }}">
+                                            Editar
+                                        </button>
                                         <form method="post" action="{% url 'panel_administrador' %}" style="display:inline;">
                                             {% csrf_token %}
                                             <input type="hidden" name="action" value="eliminar">
@@ -561,13 +617,10 @@
                                             <input type="hidden" name="id" value="{{ administrador.id }}">
                                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                         </form>
-                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdministradorModal{{ administrador.id }}">
-                                            Editar
-                                        </button>
                                     </td>
                                 </tr>
                                 <!-- Modal para Editar Administrador -->
-                                <div class="modal fade" id="editAdministradorModal{{ administrador.id }}" tabindex="-1" aria-labelledby="editAdministradorModalLabel{{ administrador.id }}" aria-hidden="true">
+                                <div class="modal" id="editAdministradorModal{{ administrador.id }}" tabindex="-1" aria-labelledby="editAdministradorModalLabel{{ administrador.id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -590,7 +643,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="editPassword{{ administrador.id }}" class="form-label">Contraseña:</label>
-                                                        <input type="password" id="editPassword{{ administrador.id }}" name="password" class="form-control" value="{{ administrador.password }}" required>
+                                                        <input type="password" id="editPassword{{ administrador.id }}" name="password" class="form-control" required>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

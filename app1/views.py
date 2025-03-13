@@ -17,6 +17,11 @@ def administrador_login(request):
 
         try:
             administrador = Administrador.objects.get(email=email)
+            # Verificar si el administrador está bloqueado
+            if administrador.bloqueado:
+                messages.error(request, 'Este usuario está bloqueado. Contacte al administrador.')
+                return redirect('administrador_login')
+            # Verificar la contraseña
             if check_password(password, administrador.password):
                 request.session['administrador_id'] = administrador.id  # Guarda el ID del administrador en la sesión
                 return redirect('panel_administrador')
@@ -34,6 +39,11 @@ def director_login(request):
 
         try:
             director = Director.objects.get(email=email)
+            # Verificar si el director está bloqueado
+            if director.bloqueado:
+                messages.error(request, 'Este usuario está bloqueado. Contacte al administrador.')
+                return redirect('director_login')
+            # Verificar la contraseña
             if check_password(password, director.password):
                 request.session['director_id'] = director.id
                 return redirect('panel_director')
@@ -51,6 +61,11 @@ def profesor_login(request):
 
         try:
             profesor = Profesor.objects.get(email=email)
+            # Verificar si el profesor está bloqueado
+            if profesor.bloqueado:
+                messages.error(request, 'Este usuario está bloqueado. Contacte al administrador.')
+                return redirect('profesor_login')
+            # Verificar la contraseña
             if check_password(password, profesor.password):
                 request.session['profesor_id'] = profesor.id  # Correct session variable
                 return redirect('panel_profesor')
@@ -85,8 +100,8 @@ def panel_administrador(request):
 
     # Manejar las acciones CRUD
     if request.method == 'POST':
-        action = request.POST.get('action')  # Acción: crear, editar, eliminar
-        model_type = request.POST.get('model_type')  # Tipo de modelo: estudiante, aula, profesor, administrador
+        action = request.POST.get('action')  # Acción: crear, editar, eliminar, bloquear, desbloquear
+        model_type = request.POST.get('model_type')  # Tipo de modelo: estudiante, aula, profesor, director, administrador
 
         if model_type == 'estudiante':
             if action == 'crear':
@@ -170,6 +185,21 @@ def panel_administrador(request):
                 profesor = get_object_or_404(Profesor, id=profesor_id)
                 profesor.delete()
                 messages.success(request, 'Profesor eliminado exitosamente.')
+            elif action == 'bloquear':
+                # Bloquear un profesor
+                profesor_id = request.POST.get('id')
+                profesor = get_object_or_404(Profesor, id=profesor_id)
+                profesor.bloqueado = True
+                profesor.save()
+                messages.success(request, 'Profesor bloqueado exitosamente.')
+            elif action == 'desbloquear':
+                # Desbloquear un profesor
+                profesor_id = request.POST.get('id')
+                profesor = get_object_or_404(Profesor, id=profesor_id)
+                profesor.bloqueado = False
+                profesor.save()
+                messages.success(request, 'Profesor desbloqueado exitosamente.')
+
         elif model_type == 'director':
             if action == 'crear':
                 # Crear un nuevo director
@@ -194,6 +224,20 @@ def panel_administrador(request):
                 director = get_object_or_404(Director, id=director_id)
                 director.delete()
                 messages.success(request, 'Director eliminado exitosamente.')
+            elif action == 'bloquear':
+                # Bloquear un director
+                director_id = request.POST.get('id')
+                director = get_object_or_404(Director, id=director_id)
+                director.bloqueado = True
+                director.save()
+                messages.success(request, 'Director bloqueado exitosamente.')
+            elif action == 'desbloquear':
+                # Desbloquear un director
+                director_id = request.POST.get('id')
+                director = get_object_or_404(Director, id=director_id)
+                director.bloqueado = False
+                director.save()
+                messages.success(request, 'Director desbloqueado exitosamente.')
 
         elif model_type == 'administrador':
             if action == 'crear':
@@ -219,6 +263,20 @@ def panel_administrador(request):
                 administrador = get_object_or_404(Administrador, id=administrador_id)
                 administrador.delete()
                 messages.success(request, 'Administrador eliminado exitosamente.')
+            elif action == 'bloquear':
+                # Bloquear un administrador
+                administrador_id = request.POST.get('id')
+                administrador = get_object_or_404(Administrador, id=administrador_id)
+                administrador.bloqueado = True
+                administrador.save()
+                messages.success(request, 'Administrador bloqueado exitosamente.')
+            elif action == 'desbloquear':
+                # Desbloquear un administrador
+                administrador_id = request.POST.get('id')
+                administrador = get_object_or_404(Administrador, id=administrador_id)
+                administrador.bloqueado = False
+                administrador.save()
+                messages.success(request, 'Administrador desbloqueado exitosamente.')
 
         # Redirigir para evitar reenvíos del formulario
         return redirect('panel_administrador')

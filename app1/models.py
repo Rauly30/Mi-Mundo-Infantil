@@ -1,27 +1,30 @@
 from django.db import models
 from django.utils import timezone
 
-class Administrador(models.Model):
+class Profesor(models.Model):
     nombre = models.CharField(max_length=100)
-    email = models.EmailField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
+    especialidad = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    bloqueado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
 
 class Director(models.Model):
     nombre = models.CharField(max_length=100)
-    email = models.EmailField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    bloqueado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
 
-class Profesor(models.Model):
+class Administrador(models.Model):
     nombre = models.CharField(max_length=100)
-    especialidad = models.CharField(max_length=100)
-    email = models.EmailField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    bloqueado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
