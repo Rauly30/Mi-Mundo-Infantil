@@ -16,16 +16,16 @@ def administrador_login(request):
         password = request.POST.get('password')
 
         try:
-            admin = Administrador.objects.get(email=email)
-            if check_password(password, admin.password):
-                request.session['admin_id'] = admin.id
+            administrador = Administrador.objects.get(email=email)
+            if check_password(password, administrador.password):
+                request.session['administrador_id'] = administrador.id  # Guarda el ID del administrador en la sesión
                 return redirect('panel_administrador')
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
         except Administrador.DoesNotExist:
             messages.error(request, 'Usuario o contraseña incorrectos.')
 
-    return render(request, 'adimistrador_login.html')
+    return render(request, 'administrador_login.html')
 
 def director_login(request):
     if request.method == 'POST':
@@ -35,7 +35,7 @@ def director_login(request):
         try:
             director = Director.objects.get(email=email)
             if check_password(password, director.password):
-                request.session['admin_id'] = director.id
+                request.session['director_id'] = director.id
                 return redirect('panel_director')
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
@@ -63,14 +63,15 @@ def profesor_login(request):
 
 # Vista de control de paneles
 def panel_administrador(request):
-    # Obtener el ID del administrador de la sesión
-    admin_id = request.session.get('admin_id')
-    if not admin_id:
+    # Verificar si el administrador está autenticado
+    administrador_id = request.session.get('administrador_id')
+    if not administrador_id:
+        messages.error(request, 'Por favor, inicie sesión para acceder al panel.')
         return redirect('administrador_login')
-    
+
     # Obtener el objeto Administrador
     try:
-        administrador = Administrador.objects.get(id=admin_id)
+        administrador = Administrador.objects.get(id=administrador_id)
     except Administrador.DoesNotExist:
         messages.error(request, 'Administrador no encontrado. Por favor, inicie sesión nuevamente.')
         return redirect('administrador_login')
@@ -234,6 +235,20 @@ def panel_administrador(request):
     return render(request, 'panel-administrador.html', context)
 
 def panel_director(request):
+
+    # Verificar si el administrador está autenticado
+    director_id = request.session.get('director_id')
+    if not director_id:
+        messages.error(request, 'Por favor, inicie sesión para acceder al panel.')
+        return redirect('director_login')
+
+    # Obtener el objeto Administrador
+    try:
+        director = Director.objects.get(id=director_id)
+    except Director.DoesNotExist:
+        messages.error(request, 'Administrador no encontrado. Por favor, inicie sesión nuevamente.')
+        return redirect('administrador_login')
+    
     aulas = Aula.objects.all()
     evaluaciones = Evaluacion.objects.all()
     eventos = Evento.objects.all()
@@ -378,6 +393,7 @@ def panel_director(request):
         'comentarios': comentarios,  # Pasamos todos los comentarios al contexto
     }
     return render(request, 'panel-director.html', context)
+
 def panel_profesor(request):
     # Obtener el ID del profesor de la sesión
     profesor_id = request.session.get('profesor_id')
@@ -458,6 +474,8 @@ def panel_profesor(request):
         'comentarios_estudiantes': comentarios_estudiantes,
     }
     return render(request, 'panel-profesor.html', context)
+
+
 
 # API Views
 @require_http_methods(["GET"])
