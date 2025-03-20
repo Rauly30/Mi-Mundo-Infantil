@@ -51,44 +51,6 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Form Validation and Submission
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Basic form validation
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        const message = document.getElementById('message').value;
-
-        if (!name || !email || !phone || !message) {
-            alert('Por favor complete todos los campos');
-            return;
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert('Por favor ingrese un email válido');
-            return;
-        }
-
-        // Simulate form submission
-        const submitBtn = contactForm.querySelector('.submit-btn');
-        submitBtn.textContent = 'Enviando...';
-        submitBtn.disabled = true;
-
-        setTimeout(() => {
-            alert('¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.');
-            contactForm.reset();
-            submitBtn.textContent = 'Enviar Mensaje';
-            submitBtn.disabled = false;
-        }, 2000);
-    });
-}
-
 // Image Gallery
 document.querySelectorAll('.gallery-item').forEach(item => {
     item.addEventListener('click', function() {
@@ -141,17 +103,4 @@ const observer = new IntersectionObserver((entries) => {
 // Observe all sections
 document.querySelectorAll('section').forEach(section => {
     observer.observe(section);
-});
-
-// Handle form input animations
-document.querySelectorAll('.form-group input, .form-group textarea').forEach(input => {
-    input.addEventListener('focus', function() {
-        this.parentElement.classList.add('focused');
-    });
-
-    input.addEventListener('blur', function() {
-        if (!this.value) {
-            this.parentElement.classList.remove('focused');
-        }
-    });
 });

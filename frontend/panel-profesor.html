@@ -47,6 +47,9 @@
                     </a>
                 </li>
             </ul>
+            <div class="header-icons">
+                <a href="{% url 'logout' %}" class="btn btn-danger">Cerrar Sesión</a>
+            </div>
             <div class="user-info mt-auto">
                 <div class="d-flex align-items-center">
                     <span id="userName">{{ profesor.nombre }}</span>
@@ -61,10 +64,47 @@
                     <h1>Bienvenido, {{ profesor.nombre }}!</h1>
                 </div>
                 <div class="header-icons">
-                    <i class="bi bi-bell fs-5 me-3"></i>
-                    <i class="bi bi-envelope fs-5"></i>
+                    <i class="bi bi-person-circle fs-5 me-3" data-bs-toggle="modal" data-bs-target="#userSettingsModal"></i>
                 </div>
             </header>
+            <!-- Modal para cambiar nombre y contraseña -->
+            <div class="modal fade" id="userSettingsModal" tabindex="-1" aria-labelledby="userSettingsModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="userSettingsModalLabel">Configuración de Usuario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="{% url 'panel_profesor' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="editar_profesor">
+                                <input type="hidden" name="id" value="{{ profesor.id }}">
+                                <div class="mb-3">
+                                    <label for="editNombre" class="form-label">Nombre:</label>
+                                    <input type="text" id="editNombre" name="nombre" class="form-control" value="{{ profesor.nombre }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editEmail" class="form-label">Correo Electrónico:</label>
+                                    <input type="email" id="editEmail" name="email" class="form-control" value="{{ profesor.email }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPassword" class="form-label">Nueva Contraseña:</label>
+                                    <input type="password" id="editPassword" name="password" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirmar Contraseña:</label>
+                                    <input type="password" id="confirmPassword" name="confirm_password" class="form-control">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Mensajes de éxito -->
             {% if messages %}
             <div class="alert alert-success">

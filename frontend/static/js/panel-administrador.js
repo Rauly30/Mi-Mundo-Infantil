@@ -5,6 +5,26 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAlerts();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const aulaSelect = document.getElementById('aula');
+    const agregarBtn = document.querySelector('#agregarEstudianteModal .btn-primary');
+
+    if (aulaSelect && agregarBtn) {
+        aulaSelect.addEventListener('change', () => {
+            const selectedOption = aulaSelect.options[aulaSelect.selectedIndex];
+            const capacidad = parseInt(selectedOption.getAttribute('data-capacidad'));
+            const estudiantes = parseInt(selectedOption.getAttribute('data-estudiantes'));
+
+            if (estudiantes >= capacidad) {
+                agregarBtn.disabled = true;
+                alert(`El aula "${selectedOption.text}" ha alcanzado su capacidad máxima.`);
+            } else {
+                agregarBtn.disabled = false;
+            }
+        });
+    }
+});
+
 // Configuración de la navegación
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-links .nav-item');

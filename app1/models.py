@@ -74,3 +74,13 @@ class Comentario(models.Model):
 
     def __str__(self):
         return f"Comentario: {self.texto[:50]}..."
+    
+class Formulario(models.Model):
+    nombre = models.CharField(max_length=100)
+    email = models.EmailField()
+    telefono = models.CharField(max_length=15)
+    descripcion = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nombre
