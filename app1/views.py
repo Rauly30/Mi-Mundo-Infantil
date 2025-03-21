@@ -211,13 +211,17 @@ def panel_administrador(request):
                 # Editar un profesor existente
                 profesor_id = request.POST.get('id')
                 profesor = get_object_or_404(Profesor, id=profesor_id)
-                profesor.nombre = request.POST.get('nombre')
-                profesor.especialidad = request.POST.get('especialidad')
-                profesor.email = request.POST.get('email')
-                if request.POST.get('password'):
-                    profesor.password = make_password(request.POST.get('password'))
-                profesor.save()
-                messages.success(request, 'Profesor editado exitosamente.')
+                email = request.POST.get('email')
+                if Profesor.objects.filter(email=email).exclude(id=profesor_id).exists():
+                    messages.error(request, 'El correo electrónico ya está en uso.')
+                else:
+                    profesor.nombre = request.POST.get('nombre')
+                    profesor.especialidad = request.POST.get('especialidad')
+                    profesor.email = email
+                    if request.POST.get('password'):
+                        profesor.password = make_password(request.POST.get('password'))
+                    profesor.save()
+                    messages.success(request, 'Profesor editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un profesor
                 profesor_id = request.POST.get('id')
@@ -255,12 +259,16 @@ def panel_administrador(request):
                 # Editar un director existente
                 director_id = request.POST.get('id')
                 director = get_object_or_404(Director, id=director_id)
-                director.nombre = request.POST.get('nombre')
-                director.email = request.POST.get('email')
-                if request.POST.get('password'):
-                    director.password = make_password(request.POST.get('password'))
-                director.save()
-                messages.success(request, 'Director editado exitosamente.')
+                email = request.POST.get('email')
+                if Director.objects.filter(email=email).exclude(id=director_id).exists():
+                    messages.error(request, 'El correo electrónico ya está en uso.')
+                else:
+                    director.nombre = request.POST.get('nombre')
+                    director.email = email
+                    if request.POST.get('password'):
+                        director.password = make_password(request.POST.get('password'))
+                    director.save()
+                    messages.success(request, 'Director editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un director
                 director_id = request.POST.get('id')
@@ -298,20 +306,24 @@ def panel_administrador(request):
                 # Editar un administrador existente
                 administrador_id = request.POST.get('id')
                 administrador = get_object_or_404(Administrador, id=administrador_id)
-                administrador.nombre = request.POST.get('nombre')
-                administrador.email = request.POST.get('email')
+                email = request.POST.get('email')
+                if Administrador.objects.filter(email=email).exclude(id=administrador_id).exists():
+                    messages.error(request, 'El correo electrónico ya está en uso.')
+                else:
+                    administrador.nombre = request.POST.get('nombre')
+                    administrador.email = email
 
-                # Verificar si las contraseñas coinciden
-                password = request.POST.get('password')
-                confirm_password = request.POST.get('confirm_password')
-                if password:
-                    if password != confirm_password:
-                        messages.error(request, 'Las contraseñas no coinciden.')
-                        return redirect('panel_administrador')
-                    administrador.password = make_password(password)
+                    # Verificar si las contraseñas coinciden
+                    password = request.POST.get('password')
+                    confirm_password = request.POST.get('confirm_password')
+                    if password:
+                        if password != confirm_password:
+                            messages.error(request, 'Las contraseñas no coinciden.')
+                            return redirect('panel_administrador')
+                        administrador.password = make_password(password)
 
-                administrador.save()
-                messages.success(request, 'Administrador editado exitosamente.')
+                    administrador.save()
+                    messages.success(request, 'Administrador editado exitosamente.')
             elif action == 'eliminar':
                 # Eliminar un administrador
                 administrador_id = request.POST.get('id')
