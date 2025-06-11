@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 import json
-from .models import Administrador, Profesor, Director, Estudiante, Aula, Evaluacion, Evento, Comentario, Formulario
+from .models import Profesor, Director, Estudiante, Aula, Evaluacion, Evento, Comentario, Formulario
 
 def index(request):
     if request.method == 'POST':
@@ -34,27 +34,6 @@ def index(request):
     return render(request, 'index.html')
 
 # Vistas de login para los paneles
-def administrador_login(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        try:
-            administrador = Administrador.objects.get(email=email)
-            # Verificar si el administrador está bloqueado
-            if administrador.bloqueado:
-                messages.error(request, 'Este usuario está bloqueado. Contacte al administrador.')
-                return redirect('administrador_login')
-            # Verificar la contraseña
-            if check_password(password, administrador.password):
-                request.session['administrador_id'] = administrador.id  # Guarda el ID del administrador en la sesión
-                return redirect('panel_administrador')
-            else:
-                messages.error(request, 'Usuario o contraseña incorrectos.')
-        except Administrador.DoesNotExist:
-            messages.error(request, 'Usuario o contraseña incorrectos.')
-
-    return render(request, 'administrador_login.html')
 
 def director_login(request):
     if request.method == 'POST':
@@ -102,30 +81,30 @@ def profesor_login(request):
 
 # Vista de control de paneles
 def panel_administrador(request):
-    # Verificar si el administrador está autenticado
-    administrador_id = request.session.get('administrador_id')
-    if not administrador_id:
+    # Verificar si el director está autenticado
+    director_id = request.session.get('director_id')
+    if not director_id:
         messages.error(request, 'Por favor, inicie sesión para acceder al panel.')
-        return redirect('administrador_login')
+        return redirect('panel_director')
 
-    # Obtener el objeto Administrador
+    # Obtener el objeto Director
     try:
-        administrador = Administrador.objects.get(id=administrador_id)
-    except Administrador.DoesNotExist:
-        messages.error(request, 'Administrador no encontrado. Por favor, inicie sesión nuevamente.')
-        return redirect('administrador_login')
+        director = Director.objects.get(id=director_id)
+    except Director.DoesNotExist:
+        messages.error(request, 'Director no encontrado. Por favor, inicie sesión nuevamente.')
+        return redirect('panel_director')
     
     # Obtener todos los datos para mostrar en el template
     estudiantes = Estudiante.objects.all()
     aulas = Aula.objects.all()
     profesores = Profesor.objects.all()
     directores = Director.objects.all()
-    administradores = Administrador.objects.all()
+    # administradores = Administrador.objects.all()  # Elimina esta línea
 
     # Manejar las acciones CRUD
     if request.method == 'POST':
-        action = request.POST.get('action')  # Acción: crear, editar, eliminar, bloquear, desbloquear
-        model_type = request.POST.get('model_type')  # Tipo de modelo: estudiante, aula, profesor, director, administrador
+        action = request.POST.get('action')
+        model_type = request.POST.get('model_type')
 
         if model_type == 'estudiante':
             if action == 'crear':
@@ -290,72 +269,17 @@ def panel_administrador(request):
                 director.save()
                 messages.success(request, 'Director desbloqueado exitosamente.')
 
-        elif model_type == 'administrador':
-            if action == 'crear':
-                # Verificar si el correo ya está en uso
-                email = request.POST.get('email')
-                if Administrador.objects.filter(email=email).exists():
-                    messages.error(request, 'El correo electrónico ya está en uso.')
-                else:
-                    # Crear un nuevo administrador
-                    nombre = request.POST.get('nombre')
-                    password = make_password(request.POST.get('password'))
-                    Administrador.objects.create(nombre=nombre, email=email, password=password)
-                    messages.success(request, 'Administrador agregado exitosamente.')
-            elif action == 'editar':
-                # Editar un administrador existente
-                administrador_id = request.POST.get('id')
-                administrador = get_object_or_404(Administrador, id=administrador_id)
-                email = request.POST.get('email')
-                if Administrador.objects.filter(email=email).exclude(id=administrador_id).exists():
-                    messages.error(request, 'El correo electrónico ya está en uso.')
-                else:
-                    administrador.nombre = request.POST.get('nombre')
-                    administrador.email = email
-
-                    # Verificar si las contraseñas coinciden
-                    password = request.POST.get('password')
-                    confirm_password = request.POST.get('confirm_password')
-                    if password:
-                        if password != confirm_password:
-                            messages.error(request, 'Las contraseñas no coinciden.')
-                            return redirect('panel_administrador')
-                        administrador.password = make_password(password)
-
-                    administrador.save()
-                    messages.success(request, 'Administrador editado exitosamente.')
-            elif action == 'eliminar':
-                # Eliminar un administrador
-                administrador_id = request.POST.get('id')
-                administrador = get_object_or_404(Administrador, id=administrador_id)
-                administrador.delete()
-                messages.success(request, 'Administrador eliminado exitosamente.')
-            elif action == 'bloquear':
-                # Bloquear un administrador
-                administrador_id = request.POST.get('id')
-                administrador = get_object_or_404(Administrador, id=administrador_id)
-                administrador.bloqueado = True
-                administrador.save()
-                messages.success(request, 'Administrador bloqueado exitosamente.')
-            elif action == 'desbloquear':
-                # Desbloquear un administrador
-                administrador_id = request.POST.get('id')
-                administrador = get_object_or_404(Administrador, id=administrador_id)
-                administrador.bloqueado = False
-                administrador.save()
-                messages.success(request, 'Administrador desbloqueado exitosamente.')
-
         # Redirigir para evitar reenvíos del formulario
         return redirect('panel_administrador')
 
     # Renderizar el template con los datos
     context = {
-        'administrador': administrador,
+        'director': director,
         'estudiantes': estudiantes,
         'aulas': aulas,
         'profesores': profesores,
         'directores': directores,
-        'administradores': administradores,
+        # 'administradores': administradores,  # Elimina esta línea
     }
     return render(request, 'panel-administrador.html', context)
 

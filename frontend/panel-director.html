@@ -49,10 +49,12 @@
                     <a href="#comentarios" class="nav-link text-white d-flex align-items-center">
                         <i class="fas fa-comment me-2"></i> Comentarios
                     </a>
-                </li>
             </ul>
             <div class="header-icons">
                 <a href="{% url 'logout' %}" class="btn btn-danger">Cerrar Sesión</a>
+            </div>
+            <div class="header-icons">
+                <a href="{% url 'panel_administrador' %}" class="btn btn-danger">administrador</a>
             </div>
             <div class="user-info mt-auto">
                 <div class="d-flex align-items-center">
