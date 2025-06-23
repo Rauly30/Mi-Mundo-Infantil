@@ -3,6 +3,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
+from .models import Profesor, Director, Estudiante, Aula, Evaluacion, Evento, Comentario, Formulario, Representante, Boletin
+from datetime import date
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.contrib import messages
+from django.contrib.auth.hashers import check_password, make_password
 import json
 from .models import Profesor, Director, Estudiante, Aula, Evaluacion, Evento, Comentario, Formulario
 
@@ -78,7 +86,6 @@ def profesor_login(request):
             messages.error(request, 'Usuario o contraseña incorrectos.')
 
     return render(request, 'profesor_login.html')
-
 # Vista de control de paneles
 def panel_administrador(request):
     # Verificar si el director está autenticado
@@ -283,7 +290,6 @@ def panel_administrador(request):
     }
     return render(request, 'panel-administrador.html', context)
 
-
 def panel_director(request):
     # Verificar si el director está autenticado
     director_id = request.session.get('director_id')
@@ -298,14 +304,17 @@ def panel_director(request):
         messages.error(request, 'Director no encontrado. Por favor, inicie sesión nuevamente.')
         return redirect('director_login')
     
-    
     aulas = Aula.objects.all()
     evaluaciones = Evaluacion.objects.all()
     eventos = Evento.objects.all()
     profesores = Profesor.objects.all()
-
-    # Obtener todos los comentarios relacionados con evaluaciones
+    estudiantes = Estudiante.objects.all()
+    representantes = Representante.objects.all()
+    
+    # Obtener todos los comentarios (tanto de evaluaciones como de estudiantes)
     comentarios_evaluaciones = Comentario.objects.filter(evaluacion__isnull=False)
+    comentarios_estudiantes = Comentario.objects.filter(estudiante__isnull=False)
+    comentarios = list(comentarios_evaluaciones) + list(comentarios_estudiantes)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -354,16 +363,18 @@ def panel_director(request):
 
         elif action == 'agregar_profesor':
             nombre = request.POST.get('nombre')
+            apellido = request.POST.get('apellido')
             especialidad = request.POST.get('especialidad')
             email = request.POST.get('email')
             password = make_password(request.POST.get('password'))
-            Profesor.objects.create(nombre=nombre, especialidad=especialidad, email=email, password=password)
+            Profesor.objects.create(nombre=nombre, apellido=apellido, especialidad=especialidad, email=email, password=password)
             messages.success(request, 'Profesor agregado exitosamente.')
 
         elif action == 'editar_profesor':
             profesor_id = request.POST.get('id')
             profesor = get_object_or_404(Profesor, id=profesor_id)
             profesor.nombre = request.POST.get('nombre')
+            profesor.apellido = request.POST.get('apellido')
             profesor.especialidad = request.POST.get('especialidad')
             profesor.email = request.POST.get('email')
             if request.POST.get('password'):
@@ -376,6 +387,20 @@ def panel_director(request):
             profesor = get_object_or_404(Profesor, id=profesor_id)
             profesor.delete()
             messages.success(request, 'Profesor eliminado exitosamente.')
+
+        elif action == 'bloquear_profesor':
+            profesor_id = request.POST.get('id')
+            profesor = get_object_or_404(Profesor, id=profesor_id)
+            profesor.bloqueado = True
+            profesor.save()
+            messages.success(request, 'Profesor bloqueado exitosamente.')
+
+        elif action == 'desbloquear_profesor':
+            profesor_id = request.POST.get('id')
+            profesor = get_object_or_404(Profesor, id=profesor_id)
+            profesor.bloqueado = False
+            profesor.save()
+            messages.success(request, 'Profesor desbloqueado exitosamente.')
 
         elif action == 'registrar_aula':
             nombre = request.POST.get('nombre')
@@ -403,33 +428,98 @@ def panel_director(request):
             aula.delete()
             messages.success(request, 'Aula eliminada exitosamente.')
 
-        # Acciones para comentarios
-        elif action == 'agregar_comentario':
-            texto = request.POST.get('texto')
-            evaluacion_id = request.POST.get('evaluacion_id')
-            profesor_id = request.POST.get('profesor_id')
-            evaluacion = get_object_or_404(Evaluacion, id=evaluacion_id)
-            profesor = get_object_or_404(Profesor, id=profesor_id)
-            Comentario.objects.create(texto=texto, evaluacion=evaluacion, profesor=profesor)
-            messages.success(request, 'Comentario agregado exitosamente.')
+        elif action == 'registrar_estudiante':
+            nombre = request.POST.get('nombre')
+            apellido = request.POST.get('apellido')
+            fecha_nacimiento = request.POST.get('fecha_nacimiento')
+            nivel = request.POST.get('nivel')
+            aula_id = request.POST.get('aula')
+            aula = Aula.objects.get(id=aula_id)
+            
+            # Calcular edad
+            hoy = date.today()
+            fecha_nac = date.fromisoformat(fecha_nacimiento)
+            edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
+            
+            # Datos del representante
+            cedula_representante = request.POST.get('cedula_representante')
+            nombre_representante = request.POST.get('nombre_representante')
+            apellido_representante = request.POST.get('apellido_representante')
+            telefono_representante = request.POST.get('telefono_representante')
+            email_representante = request.POST.get('email_representante')
+            
+            # Crear o actualizar representante
+            representante, created = Representante.objects.get_or_create(
+                cedula=cedula_representante,
+                defaults={
+                    'nombre': nombre_representante,
+                    'apellido': apellido_representante,
+                    'telefono': telefono_representante,
+                    'email': email_representante
+                }
+            )
+            
+            # Crear estudiante
+            Estudiante.objects.create(
+                nombre=nombre,
+                apellido=apellido,
+                fecha_nacimiento=fecha_nacimiento,
+                edad=edad,
+                nivel=nivel,
+                aula=aula,
+                representante=representante
+            )
+            messages.success(request, 'Estudiante registrado exitosamente.')
 
-        elif action == 'editar_comentario':
-            comentario_id = request.POST.get('id')
-            comentario = get_object_or_404(Comentario, id=comentario_id)
-            comentario.texto = request.POST.get('texto')
-            comentario.save()
-            messages.success(request, 'Comentario editado exitosamente.')
+        elif action == 'editar_estudiante':
+            estudiante_id = request.POST.get('id')
+            estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+            estudiante.nombre = request.POST.get('nombre')
+            estudiante.apellido = request.POST.get('apellido')
+            estudiante.fecha_nacimiento = request.POST.get('fecha_nacimiento')
+            estudiante.nivel = request.POST.get('nivel')
+            aula_id = request.POST.get('aula')
+            estudiante.aula = Aula.objects.get(id=aula_id)
+            
+            # Calcular edad
+            hoy = date.today()
+            fecha_nac = date.fromisoformat(estudiante.fecha_nacimiento)
+            estudiante.edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
+            
+            representante_id = request.POST.get('representante')
+            estudiante.representante = Representante.objects.get(id=representante_id)
+            
+            estudiante.save()
+            messages.success(request, 'Estudiante editado exitosamente.')
 
-        elif action == 'eliminar_comentario':
-            comentario_id = request.POST.get('id')
-            comentario = get_object_or_404(Comentario, id=comentario_id)
-            comentario.delete()
-            messages.success(request, 'Comentario eliminado exitosamente.')
+        elif action == 'eliminar_estudiante':
+            estudiante_id = request.POST.get('id')
+            estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+            estudiante.delete()
+            messages.success(request, 'Estudiante eliminado exitosamente.')
+
+        elif action == 'editar_representante':
+            representante_id = request.POST.get('id')
+            representante = get_object_or_404(Representante, id=representante_id)
+            representante.cedula = request.POST.get('cedula')
+            representante.nombre = request.POST.get('nombre')
+            representante.apellido = request.POST.get('apellido')
+            representante.telefono = request.POST.get('telefono')
+            representante.email = request.POST.get('email')
+            representante.save()
+            messages.success(request, 'Representante editado exitosamente.')
+
+        elif action == 'eliminar_representante':
+            representante_id = request.POST.get('id')
+            representante = get_object_or_404(Representante, id=representante_id)
+            representante.delete()
+            messages.success(request, 'Representante eliminado exitosamente.')
 
         elif action == 'editar_director':
             director_id = request.POST.get('id')
             director = get_object_or_404(Director, id=director_id)
             director.nombre = request.POST.get('nombre')
+            director.apellido = request.POST.get('apellido')
             director.email = request.POST.get('email')
 
             # Verificar si las contraseñas coinciden
@@ -445,13 +535,6 @@ def panel_director(request):
             messages.success(request, 'Perfil actualizado exitosamente.')
 
         return redirect('panel_director')
-    
-     # Obtener todos los comentarios (tanto de evaluaciones como de estudiantes)
-    comentarios_evaluaciones = Comentario.objects.filter(evaluacion__isnull=False)  # Comentarios sobre evaluaciones
-    comentarios_estudiantes = Comentario.objects.filter(estudiante__isnull=False)    # Comentarios sobre estudiantes
-
-    # Combinar ambos tipos de comentarios en una sola lista
-    comentarios = list(comentarios_evaluaciones) + list(comentarios_estudiantes)
 
     context = {
         'director': director,
@@ -459,7 +542,9 @@ def panel_director(request):
         'evaluaciones': evaluaciones,
         'eventos': eventos,
         'profesores': profesores,
-        'comentarios': comentarios,  # Pasamos todos los comentarios al contexto
+        'estudiantes': estudiantes,
+        'representantes': representantes,
+        'comentarios': comentarios,
     }
     return render(request, 'panel-director.html', context)
 
@@ -490,16 +575,18 @@ def panel_profesor(request):
     comentarios_evaluaciones = Comentario.objects.filter(profesor=profesor, evaluacion__isnull=False)
     comentarios_estudiantes = Comentario.objects.filter(profesor=profesor, estudiante__isnull=False)
 
+    # Obtener los boletines creados por el profesor
+    boletines = Boletin.objects.filter(profesor=profesor)
+
     if request.method == 'POST':
         action = request.POST.get('action')
 
         if action == 'agregar_comentario':
             texto = request.POST.get('texto')
-            evaluacion_id = request.POST.get('evaluacion_id', None)  # Puede ser None si no se envía
-            estudiante_id = request.POST.get('estudiante_id', None)  # Puede ser None si no se envía
+            evaluacion_id = request.POST.get('evaluacion_id', None)
+            estudiante_id = request.POST.get('estudiante_id', None)
 
             if evaluacion_id:
-                # Si se envía evaluacion_id, es un comentario sobre una evaluación
                 try:
                     evaluacion = Evaluacion.objects.get(id=evaluacion_id)
                     Comentario.objects.create(texto=texto, evaluacion=evaluacion, profesor=profesor)
@@ -507,7 +594,6 @@ def panel_profesor(request):
                 except Evaluacion.DoesNotExist:
                     messages.error(request, 'Evaluación no encontrada.')
             elif estudiante_id:
-                # Si se envía estudiante_id, es un comentario sobre un estudiante
                 try:
                     estudiante = Estudiante.objects.get(id=estudiante_id)
                     Comentario.objects.create(texto=texto, estudiante=estudiante, profesor=profesor)
@@ -534,10 +620,50 @@ def panel_profesor(request):
             messages.success(request, 'Comentario eliminado exitosamente.')
             return redirect('panel_profesor')
 
+        elif action == 'agregar_boletin':
+            estudiante_id = request.POST.get('estudiante_id')
+            periodo = request.POST.get('periodo')
+            asignatura = request.POST.get('asignatura')
+            calificacion = request.POST.get('calificacion')
+            observaciones = request.POST.get('observaciones')
+            
+            estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+            
+            Boletin.objects.create(
+                estudiante=estudiante,
+                periodo=periodo,
+                asignatura=asignatura,
+                calificacion=calificacion,
+                observaciones=observaciones,
+                profesor=profesor
+            )
+            messages.success(request, 'Boletín agregado exitosamente.')
+            return redirect('panel_profesor')
+
+        elif action == 'editar_boletin':
+            boletin_id = request.POST.get('id')
+            boletin = get_object_or_404(Boletin, id=boletin_id)
+            boletin.estudiante_id = request.POST.get('estudiante_id')
+            boletin.periodo = request.POST.get('periodo')
+            boletin.asignatura = request.POST.get('asignatura')
+            boletin.calificacion = request.POST.get('calificacion')
+            boletin.observaciones = request.POST.get('observaciones')
+            boletin.save()
+            messages.success(request, 'Boletín editado exitosamente.')
+            return redirect('panel_profesor')
+
+        elif action == 'eliminar_boletin':
+            boletin_id = request.POST.get('id')
+            boletin = get_object_or_404(Boletin, id=boletin_id)
+            boletin.delete()
+            messages.success(request, 'Boletín eliminado exitosamente.')
+            return redirect('panel_profesor')
+
         elif action == 'editar_profesor':
             profesor_id = request.POST.get('id')
             profesor = get_object_or_404(Profesor, id=profesor_id)
             profesor.nombre = request.POST.get('nombre')
+            profesor.apellido = request.POST.get('apellido')
             profesor.email = request.POST.get('email')
 
             # Verificar si las contraseñas coinciden
@@ -559,18 +685,88 @@ def panel_profesor(request):
         'eventos': eventos,
         'comentarios_evaluaciones': comentarios_evaluaciones,
         'comentarios_estudiantes': comentarios_estudiantes,
+        'boletines': boletines,
     }
     return render(request, 'panel-profesor.html', context)
+
+def panel_representante(request):
+    estudiante = None
+    representante = None
+    boletines = []
+    comentarios = []
+    
+    if request.method == 'POST':
+        cedula = request.POST.get('cedula', '').strip()
+        nombre_completo = request.POST.get('nombre_estudiante', '').strip().upper()  # Convertir a mayúsculas
+        
+        if not cedula or not nombre_completo:
+            messages.error(request, 'Por favor complete todos los campos.')
+        else:
+            try:
+                # Limpiar la cédula (solo números)
+                cedula_limpia = ''.join(c for c in cedula if c.isdigit())
+                
+                # Buscar representante por cédula exacta
+                representante = Representante.objects.get(cedula=cedula_limpia)
+                
+                # Obtener todos los estudiantes del representante
+                estudiantes = representante.estudiantes.all()
+                
+                # Filtrar estudiantes por nombre completo (nombre + apellido)
+                estudiantes_filtrados = [
+                    e for e in estudiantes 
+                    if nombre_completo in f"{e.nombre} {e.apellido}".upper()
+                ]
+                
+                if estudiantes_filtrados:
+                    estudiante = estudiantes_filtrados[0]  # Tomar el primer estudiante que coincida
+                    
+                    # Obtener boletines y comentarios
+                    boletines = Boletin.objects.filter(
+                        estudiante=estudiante
+                    ).select_related('profesor').order_by('-fecha')
+                    
+                    comentarios = Comentario.objects.filter(
+                        estudiante=estudiante
+                    ).select_related('profesor').order_by('-fecha')
+                else:
+                    # Mensaje más informativo con los estudiantes disponibles
+                    nombres_estudiantes = [f"{e.nombre} {e.apellido}" for e in estudiantes]
+                    messages.error(
+                        request, 
+                        f'No se encontró un estudiante que coincida con "{nombre_completo}". '
+                        f'Estudiantes asociados a esta cédula: {", ".join(nombres_estudiantes) or "Ninguno"}'
+                    )
+                    
+            except Representante.DoesNotExist:
+                messages.error(request, f'No existe un representante con cédula {cedula}')
+            except Exception as e:
+                messages.error(request, f'Error en la búsqueda: {str(e)}')
+                # Registrar el error para diagnóstico
+                import logging
+                logging.error(f"Error en panel_representante: {str(e)}")
+    
+    context = {
+        'estudiante': estudiante,
+        'representante': representante,
+        'boletines': boletines,
+        'comentarios': comentarios,
+        'search_performed': request.method == 'POST'
+    }
+    return render(request, 'representante.html', context)
 
 @require_http_methods(["GET"])
 def get_estudiantes(request, aula_id):
     aula = get_object_or_404(Aula, id=aula_id)
     estudiantes = Estudiante.objects.filter(aula=aula)
-    estudiantes_data = [{"nombre": estudiante.nombre, "edad": estudiante.edad} for estudiante in estudiantes]
+    estudiantes_data = [{
+        "nombre": estudiante.nombre,
+        "apellido": estudiante.apellido,
+        "edad": estudiante.edad,
+        "representante": f"{estudiante.representante.nombre} {estudiante.representante.apellido}"
+    } for estudiante in estudiantes]
     return JsonResponse(estudiantes_data, safe=False)
 
 def logout(request):
-    request.session.flush()  # Eliminar todas las sesiones
-    return redirect('index')  # Redirigir a la página de inicio
-
-
+    request.session.flush()
+    return redirect('index')

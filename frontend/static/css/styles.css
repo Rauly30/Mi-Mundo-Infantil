@@ -525,6 +525,300 @@ body {
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 
+/* Estilos adicionales específicos para el panel del profesor */
+
+/* Información del aula en sidebar */
+.classroom-info {
+    position: relative;
+    z-index: 1;
+}
+
+.classroom-card {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.classroom-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--secondary-color);
+}
+
+/* Tarjetas de estudiantes mejoradas */
+.student-profile-card .card-header {
+    background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+    border-bottom: 1px solid var(--gray-300);
+}
+
+.student-profile-card .card-footer {
+    background: var(--gray-100);
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Progreso académico */
+.academic-progress .progress {
+    background-color: var(--gray-300);
+}
+
+.academic-progress .progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Métricas de rendimiento */
+.performance-overview {
+    background: var(--gray-100);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.performance-metric {
+    background: var(--white);
+    border-radius: 8px;
+    margin: 0.5rem;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease;
+}
+
+.performance-metric:hover {
+    transform: translateY(-2px);
+}
+
+/* Tabla de boletines */
+.table-hover tbody tr:hover {
+    background-color: var(--gray-100);
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.grade-badge {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.grade-badge:hover {
+    transform: scale(1.1);
+}
+
+/* Comentarios */
+.comment-card .card-header {
+    background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+}
+
+.comment-text {
+    background: var(--gray-100);
+    border-radius: 6px;
+    padding: 1rem;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Tabs mejorados */
+.nav-pills .nav-link {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-color), #1a2980);
+    box-shadow: var(--box-shadow);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: var(--gray-600);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    background: var(--gray-100);
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+/* Modales mejorados */
+.modal-header.bg-primary {
+    background: linear-gradient(135deg, var(--primary-color), #1a2980) !important;
+}
+
+.modal-header.bg-info {
+    background: linear-gradient(135deg, var(--info-color), #138496) !important;
+}
+
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    background: var(--gray-100);
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Formularios mejorados */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(11, 31, 102, 0.25);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--primary-color);
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Validación de formularios */
+.was-validated .form-control:valid {
+    border-color: var(--success-color);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.94-.94 2.94 2.94L8.5 6.4l.94.94L6.5 10.27z'/%3e%3c/svg%3e");
+}
+
+.was-validated .form-control:invalid {
+    border-color: var(--danger-color);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 1.4 1.4M7.2 4.6l-1.4 1.4'/%3e%3c/svg%3e");
+}
+
+/* Responsive específico para profesor */
+@media (max-width: 992px) {
+    .performance-overview .row {
+        text-align: center;
+    }
+    
+    .performance-metric {
+        margin-bottom: 1rem;
+    }
+    
+    .quick-action-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .classroom-info {
+        margin-bottom: 1rem;
+    }
+    
+    .student-profile-card .card-header {
+        text-align: center;
+    }
+    
+    .student-profile-card .dropdown {
+        position: static;
+    }
+    
+    .grade-badge {
+        font-size: 1rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .comment-card {
+        margin-bottom: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-card {
+        text-align: center;
+    }
+    
+    .stats-card .stats-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.25rem;
+        border-radius: var(--border-radius) !important;
+    }
+}
+
+/* Animaciones específicas */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.quick-action-card:active {
+    animation: pulse 0.3s ease;
+}
+
+.grade-badge:hover {
+    animation: pulse 0.5s ease;
+}
+
+/* Estados de carga */
+.loading-state {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading-state::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--gray-300);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Mejoras de accesibilidad */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.nav-link:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+/* Tooltips personalizados */
+.tooltip .tooltip-inner {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.tooltip .tooltip-arrow::before {
+    border-top-color: var(--primary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .menu-toggle {

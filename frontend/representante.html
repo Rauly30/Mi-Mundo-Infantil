@@ -1,0 +1,904 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Académica - Mi Mundo Infantil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0B1F66;
+            --secondary-color: #FFD700;
+            --accent-color: #FF6B6B;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --box-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-color) 0%, #e3f2fd 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2980 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--box-shadow-lg);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+
+        .search-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-header h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-header p {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+        }
+
+        .form-floating {
+            position: relative;
+        }
+
+        .form-floating > .form-control {
+            height: calc(3.5rem + 2px);
+            padding: 1rem 0.75rem;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(11, 31, 102, 0.25);
+        }
+
+        .form-floating > label {
+            padding: 1rem 0.75rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary-color), #1a2980);
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-search::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-search:hover::before {
+            left: 100%;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-lg);
+        }
+
+        .student-profile {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .student-header {
+            background: linear-gradient(135deg, var(--primary-color), #1a2980);
+            color: white;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .student-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .student-info h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .student-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        .detail-item i {
+            margin-right: 0.5rem;
+            width: 20px;
+        }
+
+        .academic-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+
+        .section-header {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .section-header h4 {
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header i {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .grades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .grade-card {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .grade-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .grade-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .grade-period {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .grade-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            color: white;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .grade-excellent { background: var(--success-color); }
+        .grade-good { background: var(--info-color); }
+        .grade-regular { background: var(--warning-color); }
+        .grade-poor { background: var(--danger-color); }
+
+        .grade-subject {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .grade-observations {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .comments-section {
+            padding: 1.5rem;
+        }
+
+        .comment-item {
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--info-color);
+            transition: all 0.3s ease;
+        }
+
+        .comment-item:hover {
+            background: var(--gray-200);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .comment-author i {
+            margin-right: 0.5rem;
+        }
+
+        .comment-date {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .comment-text {
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-600);
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray-400);
+        }
+
+        .alert-custom {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .alert-info-custom {
+            background: rgba(23, 162, 184, 0.1);
+            border-left-color: var(--info-color);
+            color: #0c5460;
+        }
+
+        .alert-warning-custom {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: var(--warning-color);
+            color: #856404;
+        }
+
+        .alert-danger-custom {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: var(--danger-color);
+            color: #721c24;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner-border-custom {
+            width: 3rem;
+            height: 3rem;
+            border: 0.3em solid var(--gray-300);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--gray-200);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 0;
+            }
+            
+            .search-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .student-header {
+                padding: 1.5rem;
+                text-align: center;
+            }
+            
+            .student-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .grades-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .grade-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-graduation-cap me-3"></i>
+                    Mi Mundo Infantil
+                </h1>
+                <p class="lead">Portal de Consulta Académica para Representantes</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Formulario de búsqueda mejorado -->
+                <div class="search-container">
+                    <div class="search-header">
+                        <h3>
+                            <i class="fas fa-search text-primary me-2"></i>
+                            Consulta el Progreso Académico
+                        </h3>
+                        <p>Ingresa tus datos para acceder a la información académica de tu hijo/a</p>
+                    </div>
+                    
+                    <form method="post" class="needs-validation" novalidate id="searchForm">
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="cedula" name="cedula" 
+                                           value="{{ request.POST.cedula }}" required
+                                           placeholder="Número de cédula" pattern="[0-9]+"
+                                           title="Solo números, sin guiones ni espacios">
+                                    <label for="cedula">
+                                        <i class="fas fa-id-card me-2"></i>Cédula del Representante
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese su número de cédula válido.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="nombre_estudiante" name="nombre_estudiante" 
+                                           value="{{ request.POST.nombre_estudiante }}" required
+                                           placeholder="Nombre completo del estudiante">
+                                    <label for="nombre_estudiante">
+                                        <i class="fas fa-child me-2"></i>Nombre del Estudiante
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese el nombre completo del estudiante.
+                                    </div>
+                                </div>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Puede ingresar nombre parcial o completo
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-search btn-lg">
+                                <i class="fas fa-search me-2"></i>
+                                <span class="btn-text">Buscar Información Académica</span>
+                                <div class="spinner-border spinner-border-sm d-none" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Mensajes -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}-custom alert-dismissible fade show fade-in">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border-custom"></div>
+                    <p class="mt-3 text-muted">Buscando información académica...</p>
+                </div>
+
+                <!-- Resultados -->
+                {% if search_performed and estudiante %}
+                <div class="results-container fade-in">
+                    <!-- Perfil del estudiante -->
+                    <div class="student-profile">
+                        <div class="student-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-3 text-center">
+                                    <div class="student-avatar">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="student-info">
+                                        <h2>{{ estudiante.nombre }} {{ estudiante.apellido }}</h2>
+                                        <div class="student-details">
+                                            <div class="detail-item">
+                                                <i class="fas fa-birthday-cake"></i>
+                                                <span><strong>Edad:</strong> {{ estudiante.edad }} años</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-school"></i>
+                                                <span><strong>Aula:</strong> {{ estudiante.aula.nombre }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-chalkboard-teacher"></i>
+                                                <span><strong>Profesor:</strong> {{ estudiante.aula.profesor.nombre }} {{ estudiante.aula.profesor.apellido }}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-layer-group"></i>
+                                                <span><strong>Nivel:</strong> {{ estudiante.nivel }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas rápidas -->
+                    {% if boletines %}
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ boletines|length }}</div>
+                            <div class="stat-label">Evaluaciones</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">
+                                {% widthratio boletines|length 1 100 as total_evaluaciones %}
+                                {% for boletin in boletines %}
+                                    {% if forloop.first %}
+                                        {% widthratio boletin.calificacion 1 1 as suma_calificaciones %}
+                                    {% else %}
+                                        {% widthratio suma_calificaciones|add:boletin.calificacion 1 1 as suma_calificaciones %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% widthratio suma_calificaciones boletines|length 1 %}
+                            </div>
+                            <div class="stat-label">Promedio</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ comentarios|length }}</div>
+                            <div class="stat-label">Comentarios</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Rendimiento académico -->
+                    <div class="academic-section">
+                        <div class="section-header">
+                            <h4>
+                                <i class="fas fa-chart-line"></i>
+                                Rendimiento Académico
+                            </h4>
+                        </div>
+                        
+                        {% if boletines %}
+                        <div class="grades-grid">
+                            {% for boletin in boletines %}
+                            <div class="grade-card">
+                                <div class="grade-header">
+                                    <div>
+                                        <div class="grade-period">{{ boletin.periodo }}</div>
+                                        <div class="grade-subject">{{ boletin.asignatura }}</div>
+                                    </div>
+                                    <div class="grade-score 
+                                        {% if boletin.calificacion >= 16 %}grade-excellent
+                                        {% elif boletin.calificacion >= 12 %}grade-good
+                                        {% elif boletin.calificacion >= 10 %}grade-regular
+                                        {% else %}grade-poor{% endif %}">
+                                        {{ boletin.calificacion }}
+                                    </div>
+                                </div>
+                                <div class="grade-observations">
+                                    <strong>Observaciones:</strong><br>
+                                    {{ boletin.observaciones }}
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ boletin.fecha|date:"d/m/Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="no-data">
+                            <i class="fas fa-chart-line"></i>
+                            <h5>No hay evaluaciones registradas</h5>
+                            <p>Aún no se han registrado calificaciones para este estudiante.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Comentarios de profesores -->
+                    <div class="academic-section">
+                        <div class="section-header">
+                            <h4>
+                                <i class="fas fa-comments"></i>
+                                Comentarios y Observaciones
+                            </h4>
+                        </div>
+                        
+                        {% if comentarios %}
+                        <div class="comments-section">
+                            {% for comentario in comentarios %}
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-author">
+                                        <i class="fas fa-user-tie"></i>
+                                        {{ comentario.profesor.nombre }} {{ comentario.profesor.apellido }}
+                                    </div>
+                                    <div class="comment-date">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ comentario.fecha|date:"d/m/Y H:i" }}
+                                    </div>
+                                </div>
+                                <div class="comment-text">
+                                    {{ comentario.texto }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="no-data">
+                            <i class="fas fa-comments"></i>
+                            <h5>No hay comentarios registrados</h5>
+                            <p>Los profesores aún no han dejado comentarios sobre este estudiante.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validación del formulario
+            const form = document.getElementById('searchForm');
+            const cedulaInput = document.getElementById('cedula');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const btnText = document.querySelector('.btn-text');
+            const btnSpinner = document.querySelector('.spinner-border');
+
+            // Formatear cédula (solo números)
+            if (cedulaInput) {
+                cedulaInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/\D/g, '');
+                    
+                    // Validación en tiempo real
+                    if (this.value.length >= 7 && this.value.length <= 10) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                        if (this.value.length > 0) {
+                            this.classList.add('is-invalid');
+                        }
+                    }
+                });
+            }
+
+            // Validación de Bootstrap
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    if (form.checkValidity()) {
+                        // Mostrar loading
+                        showLoading();
+                        
+                        // Simular delay para mejor UX
+                        setTimeout(() => {
+                            form.submit();
+                        }, 1000);
+                    }
+                    
+                    form.classList.add('was-validated');
+                });
+            }
+
+            function showLoading() {
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'block';
+                }
+                
+                if (btnText && btnSpinner) {
+                    btnText.textContent = 'Buscando...';
+                    btnSpinner.classList.remove('d-none');
+                }
+                
+                // Scroll suave al loading
+                loadingSpinner.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
+
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+
+            // Tooltips para calificaciones
+            const gradeScores = document.querySelectorAll('.grade-score');
+            gradeScores.forEach(score => {
+                const value = parseFloat(score.textContent);
+                let tooltip = '';
+                
+                if (value >= 16) tooltip = 'Excelente rendimiento';
+                else if (value >= 12) tooltip = 'Buen rendimiento';
+                else if (value >= 10) tooltip = 'Rendimiento regular';
+                else tooltip = 'Necesita mejorar';
+                
+                score.setAttribute('title', tooltip);
+                score.setAttribute('data-bs-toggle', 'tooltip');
+            });
+
+            // Inicializar tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Animación de entrada para las tarjetas
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observar elementos para animación
+            const animatedElements = document.querySelectorAll('.grade-card, .comment-item');
+            animatedElements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(el);
+            });
+
+            // Función para copiar información al portapapeles
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('Información copiada al portapapeles', 'success');
+                }).catch(() => {
+                    // Fallback para navegadores más antiguos
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('Información copiada al portapapeles', 'success');
+                });
+            };
+
+            // Mostrar notificaciones
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type} notification-toast position-fixed`;
+                notification.style.cssText = `
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                    animation: slideInRight 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.style.animation = 'slideOutRight 0.3s ease';
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }
+                }, 3000);
+            }
+
+            // Agregar estilos para animaciones
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(100%); }
+                }
+                
+                .notification-toast {
+                    border: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
